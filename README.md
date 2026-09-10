@@ -131,11 +131,28 @@ its container exists first, so removing a shelf breaks nothing.
 The mood tiles are the cheapest thing to change — they are the `MOODS` list at
 the top of `js/explore.js`, and each one is just a link into `search.html`.
 
-## The placeholder content
+## The content
 
-The eight profiles, ten cafes and twenty reviews are invented, and the cafe
-names are made up rather than real businesses. Replace them when you have real
-ones; `BACKLOG.md` keeps that as an open item.
+**Cafes are real** — six of them: Gary's Matcha, Matcha Matcha, Matcha Osaka,
+Cha Yen, Abu's Matcha and Neighbors Matcha. Only their name and icon are
+filled in. Area, blurb and price are deliberately blank, because those are
+facts about real businesses rather than things to invent, and every card hides
+whichever of the three is still empty.
+
+**The eight profiles are invented** placeholders and have no accounts behind
+them (`profiles.user_id` is null).
+
+**There are no reviews.** The twenty placeholder ones were about the invented
+cafes and went when those were deleted. Nothing has been written about the six
+real cafes, so every rating reads "No reviews yet".
+
+Two things follow from that, until reviews and blurbs exist:
+
+- most **mood tiles** on Explore search for words in the blurbs — "iced",
+  "ceremonial", "quiet" — so they find nothing yet
+- **By neighbourhood** on Explore stays empty until the cafes have an area
+
+`BACKLOG.md` keeps both as open items.
 
 ## Deploying
 

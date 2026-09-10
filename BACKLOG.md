@@ -24,9 +24,17 @@ two at once.
 
 ## Next
 
-- [ ] Replace the placeholder content — the eight profiles, ten cafes and
-      twenty reviews are invented, and the cafe names are made up rather than
-      real businesses
+- [x] Replace the invented cafes with the real six — Gary's Matcha, Matcha
+      Matcha, Matcha Osaka, Cha Yen, Abu's Matcha, Neighbors Matcha
+- [ ] **Give each of the six an area, a line of description and a price.**
+      They have only a name and an icon. Until the areas are in, the *By
+      neighbourhood* shelf on Explore is empty; until the descriptions are in,
+      most mood tiles find nothing
+- [ ] Reviews: there are none, since the old ones went with the invented
+      cafes. Decide where real ones come from before writing any — inventing
+      reviews of real businesses is not on
+- [ ] The eight profiles are still invented placeholders with no accounts
+      behind them
 - [ ] Customise Explore. The shelves are in `explore.html`, the mood tiles are
       the `MOODS` list in `js/explore.js`
 - [ ] Decide how reviews get written, since visitors cannot write them:
@@ -38,6 +46,9 @@ two at once.
       Supabase storage bucket
 - [ ] A favicon file and the social preview tags (an emoji data-uri stands in
       for the favicon today)
+- [ ] Keep the SQL in the repo. The schema, the policies and the trigger only
+      exist inside the Supabase project right now — nothing in git describes
+      the database, so it cannot be reviewed, diffed or rebuilt from here
 
 ## Later
 

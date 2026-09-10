@@ -96,7 +96,7 @@ async function loadAreas() {
   const { data, error } = await sb.from('cafes').select('area');
 
   if (error || !data.length) {
-    box.innerHTML = '<span class="small muted">No neighbourhoods yet.</span>';
+    box.innerHTML = '<span class="small muted">Areas appear here once the cafes have one.</span>';
     return;
   }
 
@@ -108,6 +108,11 @@ async function loadAreas() {
   });
 
   const areas = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+
+  if (!areas.length) {
+    box.innerHTML = '<span class="small muted">Areas appear here once the cafes have one.</span>';
+    return;
+  }
 
   box.innerHTML = areas.map(([area, n]) => `
     <a class="chip" href="search.html?q=${encodeURIComponent(area)}&filter=cafes">

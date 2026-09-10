@@ -188,11 +188,18 @@ function cafeCard(c) {
   return `
     <a class="card card--cafe" href="cafe.html?c=${encodeURIComponent(c.slug)}">
       <span class="card__emoji" aria-hidden="true">${esc(c.emoji || '\u{1F375}')}</span>
-      <p class="card__meta">${esc(c.area)} · ${esc(c.price)}</p>
+      ${cafeMeta(c)}
       <h3 class="card__name">${esc(c.name)}</h3>
-      <p class="card__bio">${esc(c.blurb)}</p>
+      ${c.blurb ? `<p class="card__bio">${esc(c.blurb)}</p>` : ''}
       ${stars(c.avg_rating, c.reviews_count)}
     </a>`;
+}
+
+/* "Salmiya · $$", or just "Salmiya", or nothing at all - a cafe that has not
+   had its area and price filled in yet should not show a stray dot */
+function cafeMeta(c) {
+  const parts = [c.area, c.price].filter(Boolean).map(esc);
+  return parts.length ? `<p class="card__meta">${parts.join(' · ')}</p>` : '';
 }
 
 /* one review. `show` picks what the line above it names: the cafe it is

@@ -39,9 +39,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       <span class="cafe-head__emoji" aria-hidden="true">${esc(cafe.emoji || '\u{1F375}')}</span>
 
       <div style="flex:1;min-width:0">
-        <p class="card__meta">${esc(cafe.area)} · ${esc(cafe.price)}</p>
+        ${cafeMeta(cafe)}
         <h1 style="margin-bottom:.35rem">${esc(cafe.name)}</h1>
-        <p class="muted" style="margin-bottom:.6rem">${esc(cafe.blurb)}</p>
+        ${cafe.blurb ? `<p class="muted" style="margin-bottom:.6rem">${esc(cafe.blurb)}</p>` : ''}
         ${stars(cafe.avg_rating, cafe.reviews_count)}
       </div>
 
@@ -53,9 +53,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         <p class="eyebrow">What the girls said</p>
         <h2>Entries about ${esc(cafe.name)}</h2>
       </div>
+      ${cafe.area ? `
       <a class="btn btn--ghost btn--small" href="search.html?q=${encodeURIComponent(cafe.area)}&filter=cafes">
         More in ${esc(cafe.area)}
-      </a>
+      </a>` : `
+      <a class="btn btn--ghost btn--small" href="search.html?filter=cafes">
+        All the cafes
+      </a>`}
     </div>
 
     <div id="reviews"><div class="skeleton"></div></div>`;
