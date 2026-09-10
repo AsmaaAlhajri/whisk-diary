@@ -24,9 +24,30 @@
     <form class="paper taped taped--green" id="editForm" novalidate>
 
       <div class="field">
-        <label for="avatar">The little face beside your name</label>
+        <label for="photo">Your picture</label>
+        <div class="photo-row">
+          <span class="face face--lg" id="photoPreview" aria-hidden="true">&#127797;</span>
+          <div class="photo-row__buttons">
+            <input class="file-input" id="photo" type="file"
+                   accept="image/jpeg,image/png,image/webp,image/gif">
+            <label class="file-button" for="photo">
+              <span aria-hidden="true">&#128247;</span> <span id="photoButtonText">Choose a picture</span>
+            </label>
+            <button class="btn btn--ghost btn--small" type="button" id="photoRemove" hidden>
+              Remove picture
+            </button>
+          </div>
+        </div>
+        <p class="field__hint" id="photoHint">
+          A square one looks best. JPG, PNG, WEBP or GIF, up to 2&nbsp;MB.
+        </p>
+      </div>
+
+      <div class="field">
+        <label for="avatar">Or a little face instead</label>
         <div class="emoji-picker" id="avatarPicker" role="group" aria-label="Pick a face"></div>
         <input id="avatar" type="hidden">
+        <p class="field__hint">Used wherever you have no picture.</p>
       </div>
 
       <div class="field">
@@ -74,8 +95,12 @@
       <div class="aside-note">
         <h3>What everybody else sees</h3>
         <p>
-          Your username, your nickname, the little face, your note, how many
+          Your picture, your username, your nickname, your note, how many
           girls follow you, how many you follow, and the reviews on your page.
+        </p>
+        <p>
+          A picture you upload is public, like the rest of it — anyone can
+          open the diary and see it, signed in or not.
         </p>
         <p style="margin-bottom:0">
           <b>Not</b> your email, and <b>not</b> your password.

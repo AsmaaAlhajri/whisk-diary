@@ -27,19 +27,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     run();
   });
 
-  /* Each chip is a toggle. Turning both off would show nothing, so the
-     last one standing stays on - clicking it just moves the filter to
-     the other kind. */
+  /* Clicking a chip narrows the search to that kind - click Profiles and you
+     get profiles, which is the only thing a filter button should ever mean.
+     Clicking the one that is already on its own lifts the filter and shows
+     both again, so there is a way back without hunting for a Clear button.
+     Both chips on is the resting state, not "no filter chosen". */
   [chipProfiles, chipCafes].forEach(chip => {
     chip.addEventListener('click', () => {
       const other = chip === chipProfiles ? chipCafes : chipProfiles;
-      const on = chip.getAttribute('aria-pressed') === 'true';
+      const isOnlyOneOn = chip.getAttribute('aria-pressed') === 'true'
+        && other.getAttribute('aria-pressed') === 'false';
 
-      if (on && other.getAttribute('aria-pressed') === 'false') {
-        chip.setAttribute('aria-pressed', 'false');
+      if (isOnlyOneOn) {
+        chip.setAttribute('aria-pressed', 'true');
         other.setAttribute('aria-pressed', 'true');
       } else {
-        chip.setAttribute('aria-pressed', String(!on));
+        chip.setAttribute('aria-pressed', 'true');
+        other.setAttribute('aria-pressed', 'false');
       }
 
       pushUrl();

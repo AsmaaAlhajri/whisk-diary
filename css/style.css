@@ -54,6 +54,11 @@
 /* 2. Reset + base ---------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* The hidden attribute has to win. Its browser default is only
+   `display: none`, which any class setting a display - .btn is
+   inline-flex - quietly overrides, leaving "hidden" things on screen. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 
 body {
@@ -442,8 +447,22 @@ a.card:hover {
   border: 2px solid var(--card);
   box-shadow: 0 0 0 2px var(--blush);
   font-size: 1.45rem;
+  overflow: hidden;
 }
 .face--lg { width: 5.4rem; height: 5.4rem; font-size: 2.6rem; }
+.face--sm { width: 2.2rem; height: 2.2rem; font-size: 1.05rem; }
+
+/* a face holds either one emoji or one photograph, and the photograph is
+   cropped to the circle rather than squashed into it */
+.face img,
+.chip-account__face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.chip-account__face { overflow: hidden; }
 
 .card__name { margin: 0; font-family: var(--display); font-size: 1.1rem; font-weight: 600; }
 .card__handle { margin: 0 0 .35rem; font-size: .85rem; font-weight: 600; color: var(--matcha-deep); }
@@ -755,6 +774,49 @@ a.card:hover {
   gap: 1.2rem;
   grid-template-columns: minmax(0, 1fr) 17rem;
   align-items: start;
+}
+
+/* the photograph row: the picture as it will look, and the two buttons */
+.photo-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.photo-row__buttons { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* a file input is unstyleable, so it is hidden and its label is the button */
+.file-button {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .45rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--card);
+  font-weight: 700;
+  font-size: .87rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+.file-button:hover { border-color: var(--blush); color: var(--rose); }
+
+/* The real input still has to be focusable for the keyboard, so it is
+   shrunk rather than hidden. Written as .field .file-input because plain
+   `.field input` above is more specific than a lone class and would put
+   the width back to 100%. */
+.field .file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+}
+.field .file-input:focus-visible + .file-button {
+  outline: 3px solid var(--rose);
+  outline-offset: 3px;
 }
 
 .emoji-picker { display: flex; flex-wrap: wrap; gap: .35rem; }

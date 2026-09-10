@@ -22,6 +22,11 @@ two at once.
       Connect in Vercel → whisk-diary → Settings → Git. Until then the site
       is live but deploys are manual.
 
+- [x] Profile pictures — upload, replace, remove; the emoji face is the
+      fallback for anyone who has not uploaded one
+- [x] Make the two search filter buttons work the obvious way: clicking
+      Profiles shows profiles. They used to do the opposite
+
 ## Next
 
 - [x] Replace the invented matcha houses with the real six — Gary's Matcha, Matcha
@@ -43,8 +48,12 @@ two at once.
       role check
 - [ ] Follower and following **lists**, not just the counts — a page or a
       panel showing who they are
-- [ ] Real photographs for the matcha houses instead of one emoji each; needs a
-      Supabase storage bucket
+- [ ] Real photographs for the matcha houses instead of one emoji each. The
+      `avatars` bucket pattern from profile pictures is the model to copy
+- [ ] Shrink profile pictures before uploading. A 2 MB photo is sent whole and
+      then displayed in a circle a few millimetres across, which is slow on
+      phone data. A canvas resize down to about 400px square before upload
+      would fix it
 - [ ] A favicon file and the social preview tags (an emoji data-uri stands in
       for the favicon today)
 - [ ] Keep the SQL in the repo. The schema, the policies and the trigger only

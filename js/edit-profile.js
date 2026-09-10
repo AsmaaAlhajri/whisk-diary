@@ -1,10 +1,15 @@
 /* ============================================================
    edit-profile.js - the only writable page on the site.
 
-   She may change her nickname, her username, her note and the
-   little face. The email box is filled in and read only: this is
-   the one place in Whisk Diary an email is ever shown, and even
-   here it cannot be edited or seen by anyone else.
+   She may change her picture, her nickname, her username, her note
+   and the little face. The email box is filled in and read only:
+   this is the one place in Whisk Diary an email is ever shown, and
+   even here it cannot be edited or seen by anyone else.
+
+   Pictures go into the avatars bucket, in a folder named after her
+   auth id. Storage policies only let her write inside that folder,
+   so the worst anyone can do with a stolen upload url is overwrite
+   their own face. Nothing is uploaded until she presses Save.
 
    Uniqueness of the username is enforced by a unique index on
    lower(username) in the database. The check below is a courtesy,
@@ -21,6 +26,16 @@ const FACES = ['\u{1F375}', '\u{1F337}', '\u{1F338}', '\u{1F33F}', '\u{1F361}',
   '\u{1F48C}', '\u{2728}', '\u{1F319}', '\u{1F41A}', '\u{2615}', '\u{1F430}'];
 
 const USERNAME_SHAPE = /^[A-Za-z0-9_.]{3,20}$/;
+
+/* The bucket enforces both of these too, but a message here is friendlier
+   than a rejected upload. */
+const PHOTO_TYPES = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif'
+};
+const PHOTO_MAX_BYTES = 2 * 1024 * 1024;
 
 document.addEventListener('DOMContentLoaded', async () => {
   await AppReady;
@@ -81,7 +96,117 @@ document.addEventListener('DOMContentLoaded', async () => {
     avatar.value = btn.dataset.face;
     picker.querySelectorAll('[data-face]').forEach(b =>
       b.setAttribute('aria-pressed', String(b === btn)));
+
+    drawPhoto();          /* the preview falls back to this face */
   });
+
+  /* ============================================================
+     The picture
+
+     Three states, in order of precedence: a file she has just
+     chosen and not yet saved, the picture already on her profile,
+     or no picture at all - in which case the emoji shows.
+     ============================================================ */
+  const photoInput = document.getElementById('photo');
+  const photoPreview = document.getElementById('photoPreview');
+  const photoRemove = document.getElementById('photoRemove');
+  const photoButtonText = document.getElementById('photoButtonText');
+  const photoHint = document.getElementById('photoHint');
+
+  let pendingFile = null;          /* chosen, not uploaded yet */
+  let clearPhoto = false;          /* she pressed Remove */
+  let objectUrl = null;            /* the local preview, needs revoking */
+
+  function savedPhotoUrl() {
+    if (!me.avatar_path) return null;
+    return sb.storage.from('avatars').getPublicUrl(me.avatar_path).data.publicUrl;
+  }
+
+  function drawPhoto() {
+    const saved = clearPhoto ? null : savedPhotoUrl();
+    const src = objectUrl || saved;
+
+    photoPreview.innerHTML = src
+      ? `<img src="${src}" alt="">`
+      : esc(avatar.value || FACES[0]);
+
+    photoRemove.hidden = !src;
+    photoButtonText.textContent = src ? 'Choose another' : 'Choose a picture';
+  }
+
+  photoInput.addEventListener('change', () => {
+    const file = photoInput.files && photoInput.files[0];
+    if (!file) return;
+
+    const say2 = (text, bad) => {
+      photoHint.textContent = text;
+      photoHint.classList.toggle('bad', !!bad);
+      photoHint.classList.toggle('good', !bad);
+    };
+
+    if (!PHOTO_TYPES[file.type]) {
+      photoInput.value = '';
+      return say2('That needs to be a JPG, PNG, WEBP or GIF.', true);
+    }
+    if (file.size > PHOTO_MAX_BYTES) {
+      photoInput.value = '';
+      const mb = (file.size / 1024 / 1024).toFixed(1);
+      return say2(`That one is ${mb} MB. The limit is 2 MB - try a smaller copy.`, true);
+    }
+
+    pendingFile = file;
+    clearPhoto = false;
+
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    objectUrl = URL.createObjectURL(file);
+
+    say2('Looking good. Press Save changes to keep it.');
+    drawPhoto();
+  });
+
+  photoRemove.addEventListener('click', () => {
+    pendingFile = null;
+    clearPhoto = true;
+    photoInput.value = '';
+
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl);
+      objectUrl = null;
+    }
+
+    photoHint.textContent = 'Your little face will show instead. Press Save changes.';
+    photoHint.classList.remove('bad', 'good');
+    drawPhoto();
+  });
+
+  drawPhoto();
+
+  /* Uploads under a fresh name every time. Reusing one name would leave the
+     old picture sitting in the cache, and she would swear nothing happened. */
+  async function uploadPhoto(file) {
+    const path = `${user.id}/${Date.now()}.${PHOTO_TYPES[file.type]}`;
+
+    const { error } = await sb.storage
+      .from('avatars')
+      .upload(path, file, { contentType: file.type, upsert: false });
+
+    if (error) throw error;
+    return path;
+  }
+
+  /* Everything in her folder except the picture she is using now. Runs after
+     the profile row is saved, so a failure here costs a stray file and
+     nothing else. */
+  async function tidyOldPhotos(keepPath) {
+    const { data: files } = await sb.storage.from('avatars').list(user.id);
+    if (!files) return;
+
+    const stale = files
+      .map(f => `${user.id}/${f.name}`)
+      .filter(p => p !== keepPath);
+
+    if (stale.length) await sb.storage.from('avatars').remove(stale);
+  }
 
   /* ---------- as she types ---------- */
   bio.addEventListener('input', () => { bioCount.textContent = bio.value.length; });
@@ -142,13 +267,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.disabled = true;
     btn.textContent = 'Saving…';
 
+    /* the picture first: if the upload fails, nothing else has changed yet */
+    let wantedPath = me.avatar_path || null;
+
+    if (pendingFile) {
+      btn.textContent = 'Uploading…';
+      try {
+        wantedPath = await uploadPhoto(pendingFile);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Save changes';
+        return say(
+          /exceeded|too large/i.test(err.message || '')
+            ? 'That picture is over the 2 MB limit.'
+            : `The picture would not upload: ${err.message || 'unknown error'}`
+        );
+      }
+    } else if (clearPhoto) {
+      wantedPath = null;
+    }
+
+    btn.textContent = 'Saving…';
+
     const { error } = await sb
       .from('profiles')
       .update({
         username: wantedName,
         nickname: wantedNick,
         bio: bio.value.trim(),
-        avatar: avatar.value
+        avatar: avatar.value,
+        avatar_path: wantedPath
       })
       .eq('id', me.id);
 
@@ -165,6 +313,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       return say(error.message);
     }
+
+    /* the row is safe now, so clear out the pictures it no longer points at */
+    await tidyOldPhotos(wantedPath);
 
     const renamed = wantedName.toLowerCase() !== (me.username || '').toLowerCase();
 

@@ -30,9 +30,9 @@ too, but a local server is safer — browsers restrict `localStorage` and
 | `index.html` | Home. A feminine welcome for all matcha lovers when nobody is signed in; a greeting by name, and by the hour, when someone is. |
 | `login.html` | Log in and sign up, two tabs on one card. Checks the username is free while she types. |
 | `explore.html` | **The page to customise.** Moods, new girls, busiest matcha houses, neighbourhoods, one random entry. |
-| `search.html` | One box, two filters: Profiles and Matcha houses. |
+| `search.html` | One box, two filter buttons under it: Profiles and Matcha houses. Clicking one narrows the search to that kind; clicking it again shows both. |
 | `profile.html?u=` | A public profile: nickname, @username, followers, following, reviews. Shows an **Edit profile** button on your own. |
-| `edit-profile.html` | The only writable page. Username, nickname, note, face — and your email, shown and locked. |
+| `edit-profile.html` | The only writable page. Picture, username, nickname, note, face — and your email, shown and locked. |
 | `cafe.html?c=` | One matcha house and everything written about it. |
 
 ```
@@ -55,7 +55,7 @@ navigation is not copied into seven HTML files.
 
 Public — anyone, signed in or not, can read it:
 
-- username, nickname, the little face, the note
+- username, nickname, the profile picture, the little face, the note
 - number of followers and number following
 - every review on that profile
 
@@ -73,9 +73,10 @@ so the two sites never share accounts.
 
 ### Tables
 
-- **`profiles`** — `username`, `nickname`, `bio`, `avatar`. `id` is *not* the
-  auth id: `user_id` links a profile to an account, and is null for the seeded
-  placeholder profiles, which have no account behind them.
+- **`profiles`** — `username`, `nickname`, `bio`, `avatar` (the emoji),
+  `avatar_path` (the picture). `id` is *not* the auth id: `user_id` links a
+  profile to an account, and is null for the seeded placeholder profiles,
+  which have no account behind them.
 - **`cafes`** — `slug`, `name`, `area`, `blurb`, `emoji`, `price`
 - **`reviews`** — `author_id`, `cafe_id`, `rating` 1–5, `body`
 - **`follows`** — `follower_id`, `following_id`
@@ -104,6 +105,27 @@ edit form has a friendly message for the moment two people race.
 
 Adding reviews, matcha houses or follows is done from the Supabase dashboard or a
 migration — deliberately, since the site is a reading room.
+
+### Profile pictures
+
+Files live in the public **`avatars`** storage bucket, capped at 2 MB and
+limited to JPG, PNG, WEBP and GIF. SVG is deliberately excluded, since an SVG
+can carry script.
+
+Each picture sits in a folder named after its owner's auth id, and the storage
+policies only let her write inside that folder — so the worst anyone can do
+with a stolen upload URL is overwrite their own face. Reads are open, because
+profiles are public.
+
+`profiles.avatar_path` holds the path inside the bucket, **not** a URL; the
+browser builds the URL from it. A check constraint enforces the
+`<uuid>/<filename>` shape, so nobody can point their picture at an external
+tracker. Each upload gets a fresh filename — reusing one would leave the old
+picture in the CDN cache — and the previous file is deleted once the row is
+safely saved.
+
+Uploading is the one write besides the profile row itself, and it happens only
+on Save, so a failed upload leaves everything as it was.
 
 ### Sign up
 

@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   main.innerHTML = `
     <header class="profile-head fade-in">
-      <span class="face face--lg" aria-hidden="true">${esc(person.avatar || '\u{1F375}')}</span>
+      ${faceHtml(person, 'face face--lg')}
 
       <div class="profile-head__main">
         <h1 class="profile-head__name">${esc(person.nickname || person.username)}</h1>

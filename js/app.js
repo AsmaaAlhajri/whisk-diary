@@ -83,7 +83,7 @@ function mountChrome() {
 
   const account = me
     ? `<a class="chip-account" href="profile.html?u=${encodeURIComponent(me.username)}">
-         <span class="chip-account__face">${esc(me.avatar || '\u{1F375}')}</span>
+         ${faceHtml(me, 'chip-account__face')}
          ${esc(me.nickname || me.username)}
        </a>`
     : `<a class="btn btn--small btn--blush" href="login.html">Sign in</a>`;
@@ -167,10 +167,33 @@ function cleanQuery(q) {
 /* ============================================================
    4. Pieces - html for things that appear on several pages
    ============================================================ */
+/* ============================================================
+   Faces
+
+   A profile shows either the photograph she uploaded or the little
+   emoji face she picked. Every face on the site goes through here,
+   so a new photograph appears in the header, on her card, on her
+   page and beside her reviews without any of them knowing how.
+
+   avatar_path is a path inside the avatars bucket, not a url - the
+   url is built here, which is why nobody can point their picture
+   at somewhere else on the internet.
+   ============================================================ */
+function faceHtml(p, classes) {
+  const path = p && p.avatar_path;
+
+  if (path) {
+    const { data } = sb.storage.from('avatars').getPublicUrl(path);
+    return `<span class="${classes}"><img src="${esc(data.publicUrl)}" alt="" loading="lazy"></span>`;
+  }
+
+  return `<span class="${classes}" aria-hidden="true">${esc((p && p.avatar) || '\u{1F375}')}</span>`;
+}
+
 function personCard(p) {
   return `
     <a class="card card--person" href="profile.html?u=${encodeURIComponent(p.username)}">
-      <span class="face" aria-hidden="true">${esc(p.avatar || '\u{1F375}')}</span>
+      ${faceHtml(p, 'face')}
       <span style="min-width:0">
         <h3 class="card__name">${esc(p.nickname || p.username)}</h3>
         <p class="card__handle">@${esc(p.username)}</p>
@@ -209,9 +232,9 @@ function reviewRow(r, show) {
   const who = r.profiles || {};
 
   const head = show === 'cafe'
-    ? `<span class="face" aria-hidden="true" style="width:2.2rem;height:2.2rem;font-size:1.05rem">${esc(cafe.emoji || '\u{1F375}')}</span>
+    ? `<span class="face face--sm" aria-hidden="true">${esc(cafe.emoji || '\u{1F375}')}</span>
        <a class="review__who" href="cafe.html?c=${encodeURIComponent(cafe.slug || '')}">${esc(cafe.name || 'A matcha house')}</a>`
-    : `<span class="face" aria-hidden="true" style="width:2.2rem;height:2.2rem;font-size:1.05rem">${esc(who.avatar || '\u{1F375}')}</span>
+    : `${faceHtml(who, 'face face--sm')}
        <a class="review__who" href="profile.html?u=${encodeURIComponent(who.username || '')}">${esc(who.nickname || who.username || 'Someone')}</a>`;
 
   return `
