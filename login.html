@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whisk Diary &middot; sign in</title>
+<meta name="description" content="Sign in to Whisk Diary, or make an account - it takes a nickname, a username and an email.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="login">
+
+<main class="auth">
+  <section class="auth__card taped">
+
+    <!-- crest: a whisk cradled by two blossoms -->
+    <svg class="auth__crest" viewBox="0 0 100 100" fill="none" aria-hidden="true"
+         stroke="#4f6b42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="50" cy="50" r="42" fill="#e8f0de" stroke="rgba(79,107,66,.22)"/>
+      <path d="M32 40q3-6 6 0q3-6 6 0q3-6 6 0q3-6 6 0q3-6 6 0" stroke="#7fa469" stroke-width="1.8"/>
+      <path d="M47 62C43 54 38 46 33 40" stroke="#7fa469"/>
+      <path d="M50 62V39" stroke="#4f6b42" stroke-width="2.4"/>
+      <path d="M53 62c4-8 9-16 14-22" stroke="#7fa469"/>
+      <path d="M44 62h12" stroke="#f7cfd6" stroke-width="3.6"/>
+      <rect x="46" y="63" width="8" height="15" rx="2" stroke="#4f6b42" stroke-width="2"/>
+      <g stroke="none" fill="#f7cfd6">
+        <circle cx="26" cy="33" r="3.4"/>
+        <circle cx="74" cy="33" r="3.4"/>
+        <circle cx="21" cy="60" r="2.4"/>
+        <circle cx="79" cy="60" r="2.4"/>
+      </g>
+    </svg>
+
+    <h1 class="auth__title" id="authTitle">Welcome back</h1>
+    <p class="auth__sub" id="authSub">Your page is exactly where you left it.</p>
+
+    <div class="auth__tabs" role="tablist" aria-label="Sign in or sign up">
+      <button class="auth__tab" role="tab" id="tabLogin"  aria-selected="true"  type="button">Log in</button>
+      <button class="auth__tab" role="tab" id="tabSignup" aria-selected="false" type="button">Sign up</button>
+    </div>
+
+    <!-- LOG IN -->
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+      </div>
+
+      <div class="field field--lock">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required>
+        <button class="peek" type="button" data-peek
+                aria-label="Show the password for three seconds">&#128274;</button>
+      </div>
+
+      <button class="btn" type="submit" style="width:100%">Open my diary</button>
+    </form>
+
+    <!-- SIGN UP -->
+    <form id="signupForm" novalidate hidden>
+      <div class="field">
+        <label for="nickname">Nickname</label>
+        <input id="nickname" type="text" maxlength="40" autocomplete="nickname" placeholder="Maya" required>
+        <p class="field__hint">The name the diary greets you by. Change it any time.</p>
+      </div>
+
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" type="text" maxlength="20" autocomplete="username"
+               placeholder="mayasips" spellcheck="false" required>
+        <p class="field__hint" id="usernameHint">3&ndash;20 letters, numbers, dots or underscores. Yours alone.</p>
+      </div>
+
+      <div class="field">
+        <label for="signupEmail">Email</label>
+        <input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <p class="field__hint">Kept private. Only you can see it, on your own edit page.</p>
+      </div>
+
+      <div class="field field--lock">
+        <label for="signupPassword">Password</label>
+        <input id="signupPassword" type="password" autocomplete="new-password" required>
+        <button class="peek" type="button" data-peek
+                aria-label="Show the password for three seconds">&#128274;</button>
+        <p class="field__hint">At least six characters.</p>
+      </div>
+
+      <button class="btn btn--blush" type="submit" style="width:100%">Start my page</button>
+    </form>
+
+    <p class="msg" id="msg" role="status"></p>
+
+    <p class="auth__foot">
+      Whisk Diary is a reading room &mdash; accounts are for having a page of
+      your own, not for posting. <a href="explore.html">Have a look around</a> first
+      if you like.
+    </p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

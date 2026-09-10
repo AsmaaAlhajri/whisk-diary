@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whisk Diary &middot; explore</title>
+<meta name="description" content="Wander the diary: moods, new girls, the most written-about cafes and every neighbourhood in Kuwait.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="explore">
+
+<!-- ============================================================
+     EXPLORE - the page to customise.
+
+     Every block below is a "shelf": a heading, a line of writing,
+     and an empty container that js/explore.js fills. To change the
+     page you can, without touching anything else:
+
+       * reword any heading or note right here in the html
+       * drag a whole <section class="shelf"> above or below another
+       * delete a shelf you do not want - the script skips a shelf
+         whose container is missing
+       * add a shelf: copy one, give the container a new id, and
+         teach js/explore.js how to fill it
+
+     The moodboard tiles are pure links into search.html, so they
+     are the cheapest thing to change: their words and emoji live
+     in the MOODS list at the top of js/explore.js.
+     ============================================================ -->
+
+<main class="wrap page">
+
+  <p class="eyebrow">Explore</p>
+  <h1>What are you in the mood for?</h1>
+  <p class="hand">wander a while &mdash; nothing here needs anything from you</p>
+
+  <!-- shelf: moods -->
+  <section class="shelf" style="margin-top:1.8rem">
+    <h2>Pick a mood</h2>
+    <p class="shelf__note">Each one is just a search, saved.</p>
+    <div class="moodboard" id="moods"></div>
+  </section>
+
+  <!-- shelf: newest accounts -->
+  <section class="shelf">
+    <h2>New girls in the diary</h2>
+    <p class="shelf__note">The most recent pages to open here.</p>
+    <div class="grid" id="newcomers"><div class="skeleton"></div><div class="skeleton"></div></div>
+  </section>
+
+  <!-- shelf: cafes with the most written about them -->
+  <section class="shelf">
+    <h2>Most written about</h2>
+    <p class="shelf__note">Where the diary keeps ending up.</p>
+    <div class="grid" id="busiest"><div class="skeleton"></div><div class="skeleton"></div></div>
+  </section>
+
+  <!-- shelf: neighbourhoods, pulled from the cafes themselves -->
+  <section class="shelf">
+    <h2>By neighbourhood</h2>
+    <p class="shelf__note">Somewhere near you, hopefully.</p>
+    <div class="filters" id="areas" style="margin-top:0"></div>
+  </section>
+
+  <!-- shelf: one random entry, for the fun of it -->
+  <section class="shelf">
+    <h2>A page at random</h2>
+    <p class="shelf__note">Refresh for another one.</p>
+    <div id="randomEntry"><div class="skeleton"></div></div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/app.js"></script>
+<script src="js/explore.js"></script>
+</body>
+</html>

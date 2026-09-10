@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whisk Diary &middot; edit profile</title>
+<meta name="description" content="Edit your Whisk Diary page: nickname, username, note and the little face beside your name.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="edit">
+
+<main class="wrap page">
+
+  <p class="eyebrow">Only you can see this page</p>
+  <h1>Your corner of the diary</h1>
+  <p class="hand">tidy it up however you like</p>
+
+  <div class="settings" style="margin-top:1.6rem">
+
+    <form class="paper taped taped--green" id="editForm" novalidate>
+
+      <div class="field">
+        <label for="avatar">The little face beside your name</label>
+        <div class="emoji-picker" id="avatarPicker" role="group" aria-label="Pick a face"></div>
+        <input id="avatar" type="hidden">
+      </div>
+
+      <div class="field">
+        <label for="nickname">Nickname</label>
+        <input id="nickname" type="text" maxlength="40" autocomplete="nickname" required>
+        <p class="field__hint">What the diary greets you by, and what everyone sees first.</p>
+      </div>
+
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" type="text" maxlength="20" spellcheck="false"
+               autocomplete="username" required>
+        <p class="field__hint" id="usernameHint">
+          3&ndash;20 letters, numbers, dots or underscores. No two girls can share one.
+        </p>
+      </div>
+
+      <div class="field">
+        <label for="bio">Your little note</label>
+        <textarea id="bio" maxlength="200" placeholder="Matcha before mail. Always cold-brewed."></textarea>
+        <p class="field__hint"><span id="bioCount">0</span>/200 characters</p>
+      </div>
+
+      <!-- Email is here and nowhere else, and it cannot be typed in. -->
+      <div class="field">
+        <label for="email">Email &mdash; private to you</label>
+        <input id="email" type="email" readonly tabindex="-1"
+               aria-describedby="emailHint">
+        <p class="field__hint" id="emailHint">
+          &#128274; Never shown on your profile and never searchable. It is here so
+          you can check which address the account uses.
+        </p>
+      </div>
+
+      <p class="msg" id="msg" role="status"></p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.4rem">
+        <button class="btn" type="submit">Save changes</button>
+        <a class="btn btn--ghost" id="viewPage" href="profile.html">View my public page</a>
+        <button class="btn btn--ghost" type="button" id="signOut">Sign out</button>
+      </div>
+    </form>
+
+    <aside>
+      <div class="aside-note">
+        <h3>What everybody else sees</h3>
+        <p>
+          Your username, your nickname, the little face, your note, how many
+          girls follow you, how many you follow, and the reviews on your page.
+        </p>
+        <p style="margin-bottom:0">
+          <b>Not</b> your email, and <b>not</b> your password.
+        </p>
+      </div>
+
+      <div class="aside-note" style="margin-top:1rem;border-color:var(--matcha);background:var(--matcha-soft)">
+        <h3>About changing your username</h3>
+        <p style="margin-bottom:0">
+          Old links to <span id="oldHandle">your page</span> will stop working
+          once you change it, so pick one you will want to keep.
+        </p>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/app.js"></script>
+<script src="js/edit-profile.js"></script>
+</body>
+</html>

@@ -6,35 +6,55 @@ two at once.
 ## Now
 
 - [x] Scaffold the repo — `index.html`, `css/style.css`, `js/app.js`
-- [ ] Finish the Vercel link: GitHub -> Settings -> Applications -> Vercel ->
+- [x] **Decide what Whisk Diary is.** A reading room: a community diary of
+      matcha cafes in Kuwait. Accounts are public pages, not posting rights.
+- [x] Pick the stack — staying with plain HTML, CSS and JS
+- [x] Settle the visual direction — cream paper, matcha green, blush pink;
+      Fraunces, Quicksand and Caveat
+- [x] Build the seven real screens
+- [x] Supabase: tables, views, row level security, the sign-up trigger
+- [ ] **Turn off email confirmation while building.** Authentication → Sign In
+      / Providers → Email → *Confirm email* off. Until then a new account
+      cannot log in without clicking the email.
+- [ ] Turn on leaked password protection (Authentication → Policies)
+- [ ] Finish the Vercel link: GitHub → Settings → Applications → Vercel →
       Configure, add `whisk-diary` to the allowed repositories, then hit
-      Connect on it in Vercel -> whisk-diary -> Settings -> Git. Until then
-      the site is live but deploys are manual.
-- [ ] **Decide what Whisk Diary is.** One paragraph in the README: who opens
-      it, what they do, why they come back. Everything below is guesswork
-      until this is written.
-- [ ] Pick the stack — stay with plain HTML/CSS/JS, or move to a framework.
-      Decide before there is enough code to make the move expensive.
-- [ ] Settle the visual direction: type, palette, spacing. The current tokens
-      in `css/style.css` are placeholders.
+      Connect in Vercel → whisk-diary → Settings → Git. Until then the site
+      is live but deploys are manual.
 
 ## Next
 
-- [ ] Build the first real screen, replacing the placeholder page
-- [ ] Decide whether accounts are needed, and where data lives
-- [ ] Add a favicon and the social preview tags
-- [ ] Mobile pass — the layout is a single centred column and untested below
-      360px
+- [ ] Replace the placeholder content — the eight profiles, ten cafes and
+      twenty reviews are invented, and the cafe names are made up rather than
+      real businesses
+- [ ] Customise Explore. The shelves are in `explore.html`, the mood tiles are
+      the `MOODS` list in `js/explore.js`
+- [ ] Decide how reviews get written, since visitors cannot write them:
+      straight into the dashboard, a migration, or an admin page behind a
+      role check
+- [ ] Follower and following **lists**, not just the counts — a page or a
+      panel showing who they are
+- [ ] Real photographs for the cafes instead of one emoji each; needs a
+      Supabase storage bucket
+- [ ] A favicon file and the social preview tags (an emoji data-uri stands in
+      for the favicon today)
 
 ## Later
 
 - [ ] Custom domain on Vercel
 - [ ] Accessibility pass: focus states, contrast, keyboard order
 - [ ] Arabic translation and RTL layout
+- [ ] Paging on search once there are more than about fifty of anything —
+      the queries are capped at 48 results today
+- [ ] Let a girl delete her own account
 - [ ] Analytics, if there is a question worth answering with them
 
-## Open questions
+## Decided, for the record
 
-- Is Whisk Diary related to Whisk Me Away, or entirely separate?
-- Does it need a backend, or can it stay a static site?
-- Who is it for — one person keeping notes, or many people with accounts?
+- **Anyone can read everything, signed in or not.** Accounts are public by
+  design; the only private thing is an email address.
+- **No posting, commenting, liking or rating from the site.** Enforced in the
+  database, not just in the interface — there is no policy that lets a
+  visitor write to `reviews`, `follows` or `cafes`.
+- **Whisk Diary is separate from Whisk Me Away**, including its Supabase
+  project, so the two never share accounts.
