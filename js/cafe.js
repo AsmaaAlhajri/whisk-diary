@@ -1,5 +1,5 @@
 /* ============================================================
-   cafe.js - one matcha cafe, and everything written about it.
+   cafe.js - one matcha house, and everything written about it.
 
    Read only, like the rest of the site: the rating shown is the
    average of the entries below it, and there is no way from this
@@ -23,11 +23,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (error || !cafe) {
     main.innerHTML = `
       <p class="eyebrow">Whisk Diary</p>
-      <h1>That cafe is not in the diary.</h1>
+      <h1>That matcha house is not in the diary.</h1>
       <p class="hand">not yet, anyway</p>
       <p class="muted">The link may be old, or the name may have changed.</p>
       <p style="margin-top:1.4rem">
-        <a class="btn" href="search.html?filter=cafes">Browse the matcha cafes</a>
+        <a class="btn" href="search.html?filter=cafes">Browse the matcha houses</a>
       </p>`;
     return;
   }
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         More in ${esc(cafe.area)}
       </a>` : `
       <a class="btn btn--ghost btn--small" href="search.html?filter=cafes">
-        All the cafes
+        All the matcha houses
       </a>`}
     </div>
 

@@ -5,7 +5,7 @@
    only ever grants what Row Level Security allows, and in this
    project that is: read everything, write nothing, except your
    own profile row. There is no policy that lets the browser add
-   a review, a follow or a cafe - which is what keeps the site a
+   a review, a follow or a matcha house - which is what keeps the site a
    reading room. The secret service key is NOT here and must
    never be put in front-end code.
    ============================================================ */

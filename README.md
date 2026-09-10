@@ -7,7 +7,8 @@ with a nickname, a username and their reviews; everybody else reads them.
 like or rate. The only thing an account lets you do is have a page of your own
 and edit it. That is not a rule enforced by hiding buttons — the database
 itself has no policy that permits a visitor to write a review, a follow or a
-cafe, so those writes are refused even if someone calls the API directly.
+matcha house, so those writes are refused even if someone calls the API
+directly.
 
 Plain HTML, CSS and JavaScript. No build step, no dependencies except the
 Supabase client from a CDN.
@@ -28,11 +29,11 @@ too, but a local server is safer — browsers restrict `localStorage` and
 | --- | --- |
 | `index.html` | Home. A feminine welcome for all matcha lovers when nobody is signed in; a greeting by name, and by the hour, when someone is. |
 | `login.html` | Log in and sign up, two tabs on one card. Checks the username is free while she types. |
-| `explore.html` | **The page to customise.** Moods, new girls, busiest cafes, neighbourhoods, one random entry. |
-| `search.html` | One box, two filters: Profiles and Matcha cafes. |
+| `explore.html` | **The page to customise.** Moods, new girls, busiest matcha houses, neighbourhoods, one random entry. |
+| `search.html` | One box, two filters: Profiles and Matcha houses. |
 | `profile.html?u=` | A public profile: nickname, @username, followers, following, reviews. Shows an **Edit profile** button on your own. |
 | `edit-profile.html` | The only writable page. Username, nickname, note, face — and your email, shown and locked. |
-| `cafe.html?c=` | One matcha cafe and everything written about it. |
+| `cafe.html?c=` | One matcha house and everything written about it. |
 
 ```
 css/style.css        the whole look, in numbered sections
@@ -44,7 +45,7 @@ js/explore.js        the shelves on Explore
 js/search.js         the search and its two filters
 js/profile.js        a profile page
 js/edit-profile.js   the edit form
-js/cafe.js           a cafe page
+js/cafe.js           a matcha house page
 ```
 
 Every page loads `js/app.js`, which draws the header and footer, so the
@@ -101,7 +102,7 @@ edit form has a friendly message for the moment two people race.
 | `reviews` | everyone | nobody |
 | `follows` | everyone | nobody |
 
-Adding reviews, cafes or follows is done from the Supabase dashboard or a
+Adding reviews, matcha houses or follows is done from the Supabase dashboard or a
 migration — deliberately, since the site is a reading room.
 
 ### Sign up
@@ -133,7 +134,7 @@ the top of `js/explore.js`, and each one is just a link into `search.html`.
 
 ## The content
 
-**Cafes are real** — six of them: Gary's Matcha, Matcha Matcha, Matcha Osaka,
+**The matcha houses are real** — six of them: Gary's Matcha, Matcha Matcha, Matcha Osaka,
 Cha Yen, Abu's Matcha and Neighbors Matcha. Only their name and icon are
 filled in. Area, blurb and price are deliberately blank, because those are
 facts about real businesses rather than things to invent, and every card hides
@@ -143,14 +144,14 @@ whichever of the three is still empty.
 them (`profiles.user_id` is null).
 
 **There are no reviews.** The twenty placeholder ones were about the invented
-cafes and went when those were deleted. Nothing has been written about the six
-real cafes, so every rating reads "No reviews yet".
+matcha houses and went when those were deleted. Nothing has been written about
+the six real ones, so every rating reads "No reviews yet".
 
 Two things follow from that, until reviews and blurbs exist:
 
 - most **mood tiles** on Explore search for words in the blurbs — "iced",
   "ceremonial", "quiet" — so they find nothing yet
-- **By neighbourhood** on Explore stays empty until the cafes have an area
+- **By neighbourhood** on Explore stays empty until the matcha houses have an area
 
 `BACKLOG.md` keeps both as open items.
 

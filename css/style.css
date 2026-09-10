@@ -6,14 +6,14 @@
     3. Paper           the diary surfaces: ruled pages, washi tape
     4. Header          logo, nav, search, the account chip
     5. Controls        buttons, chips, fields, messages
-    6. Cards           profiles, cafes, reviews, stat tiles
+    6. Cards           profiles, matcha houses, reviews, stat tiles
     7. Home
     8. Sign in / sign up
     9. Explore
    10. Search
    11. Profile
    12. Edit profile
-   13. Cafe
+   13. Matcha house
    14. Footer
    15. Motion + utilities
    16. Narrow screens
@@ -459,7 +459,7 @@ a.card:hover {
 }
 .tally b { color: var(--ink); font-weight: 800; }
 
-/* a cafe */
+/* a matcha house */
 .card--cafe { padding-top: 1.35rem; }
 .card__emoji { font-size: 2rem; line-height: 1; margin-bottom: .55rem; }
 
@@ -782,7 +782,7 @@ a.card:hover {
 }
 .aside-note h3 { font-size: 1rem; color: var(--ink); }
 
-/* 13. Cafe ----------------------------------------------------------- */
+/* 13. Matcha house ----------------------------------------------------------- */
 .cafe-head {
   display: flex;
   gap: 1.3rem;

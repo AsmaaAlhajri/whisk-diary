@@ -90,7 +90,7 @@ async function run() {
 
   summary.textContent = raw
     ? `Searching for “${raw}”…`
-    : 'Everything in the diary, newest accounts and every cafe.';
+    : 'Everything in the diary, newest accounts and every matcha house.';
 
   const jobs = [];
   if (wantsProfiles()) jobs.push(findProfiles(q));
@@ -135,7 +135,7 @@ async function findProfiles(q) {
   return data.length;
 }
 
-/* a cafe can be found by its name, its area, or a word in its blurb */
+/* a matcha house can be found by its name, its area, or a word in its blurb */
 async function findCafes(q) {
   const box = document.getElementById('cafesResults');
   box.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
@@ -154,11 +154,11 @@ async function findCafes(q) {
   }
 
   document.getElementById('cafesHeading').textContent =
-    data.length ? `Matcha cafes (${data.length})` : 'Matcha cafes';
+    data.length ? `Matcha houses (${data.length})` : 'Matcha houses';
 
   box.innerHTML = data.length
     ? data.map(cafeCard).join('')
-    : emptyNote('No cafes', q ? 'No cafe name, area or note matches that.' : 'No cafes listed yet.');
+    : emptyNote('No matcha houses', q ? 'No matcha house name, area or note matches that.' : 'No matcha houses listed yet.');
 
   return data.length;
 }

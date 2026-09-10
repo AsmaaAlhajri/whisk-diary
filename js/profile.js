@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* every review this profile has written, newest first, each one naming the
-   cafe it is about */
+   matcha house it is about */
 async function loadReviews(person, mine) {
   const box = document.getElementById('reviews');
 

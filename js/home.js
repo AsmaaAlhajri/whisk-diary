@@ -13,17 +13,17 @@ const WELCOMES = [
   {
     title: 'Hello, matcha <em>darling</em>.',
     hand: 'the kettle is already on&hellip;',
-    lede: 'Whisk Diary is a little community diary of matcha &mdash; the cafes we adore, the cups we cannot stop thinking about, and the girls who write it all down. Pull up a chair and read as long as you like.'
+    lede: 'Whisk Diary is a little community diary of matcha &mdash; the matcha houses we adore, the cups we cannot stop thinking about, and the girls who write it all down. Pull up a chair and read as long as you like.'
   },
   {
     title: 'Come in, <em>matcha lovers</em>.',
     hand: 'shoes off, whisk out, page open',
-    lede: 'Every review here was written by someone who really did sit down with that cup. Wander the profiles, follow the cafes, and let somebody else do the ordering for once.'
+    lede: 'Every review here was written by someone who really did sit down with that cup. Wander the profiles, follow the matcha houses, and let somebody else do the ordering for once.'
   },
   {
     title: 'Sweet girl, <em>you found us</em>.',
     hand: 'a whole diary, all of it green',
-    lede: 'This is where matcha lovers keep their notes &mdash; which cafe foams it properly, which one is too sweet, and which one is worth the drive across Kuwait.'
+    lede: 'This is where matcha lovers keep their notes &mdash; which matcha house foams it properly, which one is too sweet, and which one is worth the drive across Kuwait.'
   },
   {
     title: 'Whisked, poured, <em>written down</em>.',
@@ -153,7 +153,7 @@ async function loadPeople() {
   box.innerHTML = data.map(personCard).join('');
 }
 
-/* the best rated cafes, ties broken by how many people wrote about them */
+/* the best rated matcha houses, ties broken by how many wrote about them */
 async function loadCafes() {
   const box = document.getElementById('cafes');
 
@@ -165,7 +165,7 @@ async function loadCafes() {
     .limit(4);
 
   if (error || !data || !data.length) {
-    box.innerHTML = emptyNote('No cafes listed', 'Matcha cafes will appear here once they are added.');
+    box.innerHTML = emptyNote('No matcha houses listed', 'Matcha houses will appear here once they are added.');
     return;
   }
 

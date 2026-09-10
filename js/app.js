@@ -101,8 +101,8 @@ function mountChrome() {
       <span class="topbar__spacer"></span>
       <form class="searchbox" role="search" id="topSearch">
         <span class="searchbox__icon" aria-hidden="true">\u{1F50E}</span>
-        <label class="sr-only" for="topSearchInput">Search profiles and matcha cafes</label>
-        <input id="topSearchInput" type="search" name="q" placeholder="Search profiles or matcha cafes…"
+        <label class="sr-only" for="topSearchInput">Search profiles and matcha houses</label>
+        <input id="topSearchInput" type="search" name="q" placeholder="Search profiles or matcha houses…"
                autocomplete="off">
       </form>
       ${account}
@@ -195,22 +195,22 @@ function cafeCard(c) {
     </a>`;
 }
 
-/* "Salmiya · $$", or just "Salmiya", or nothing at all - a cafe that has not
+/* "Salmiya · $$", or just "Salmiya", or nothing at all - a matcha house that has not
    had its area and price filled in yet should not show a stray dot */
 function cafeMeta(c) {
   const parts = [c.area, c.price].filter(Boolean).map(esc);
   return parts.length ? `<p class="card__meta">${parts.join(' · ')}</p>` : '';
 }
 
-/* one review. `show` picks what the line above it names: the cafe it is
-   about (on a profile) or the person who wrote it (on a cafe page). */
+/* one review. `show` picks what the line above it names: the matcha house it is
+   about (on a profile) or the person who wrote it (on a matcha house page). */
 function reviewRow(r, show) {
   const cafe = r.cafes || {};
   const who = r.profiles || {};
 
   const head = show === 'cafe'
     ? `<span class="face" aria-hidden="true" style="width:2.2rem;height:2.2rem;font-size:1.05rem">${esc(cafe.emoji || '\u{1F375}')}</span>
-       <a class="review__who" href="cafe.html?c=${encodeURIComponent(cafe.slug || '')}">${esc(cafe.name || 'A cafe')}</a>`
+       <a class="review__who" href="cafe.html?c=${encodeURIComponent(cafe.slug || '')}">${esc(cafe.name || 'A matcha house')}</a>`
     : `<span class="face" aria-hidden="true" style="width:2.2rem;height:2.2rem;font-size:1.05rem">${esc(who.avatar || '\u{1F375}')}</span>
        <a class="review__who" href="profile.html?u=${encodeURIComponent(who.username || '')}">${esc(who.nickname || who.username || 'Someone')}</a>`;
 

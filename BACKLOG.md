@@ -7,7 +7,7 @@ two at once.
 
 - [x] Scaffold the repo — `index.html`, `css/style.css`, `js/app.js`
 - [x] **Decide what Whisk Diary is.** A reading room: a community diary of
-      matcha cafes in Kuwait. Accounts are public pages, not posting rights.
+      matcha houses in Kuwait. Accounts are public pages, not posting rights.
 - [x] Pick the stack — staying with plain HTML, CSS and JS
 - [x] Settle the visual direction — cream paper, matcha green, blush pink;
       Fraunces, Quicksand and Caveat
@@ -24,14 +24,15 @@ two at once.
 
 ## Next
 
-- [x] Replace the invented cafes with the real six — Gary's Matcha, Matcha
+- [x] Replace the invented matcha houses with the real six — Gary's Matcha, Matcha
       Matcha, Matcha Osaka, Cha Yen, Abu's Matcha, Neighbors Matcha
 - [ ] **Give each of the six an area, a line of description and a price.**
       They have only a name and an icon. Until the areas are in, the *By
       neighbourhood* shelf on Explore is empty; until the descriptions are in,
       most mood tiles find nothing
 - [ ] Reviews: there are none, since the old ones went with the invented
-      cafes. Decide where real ones come from before writing any — inventing
+      matcha houses. Decide where real ones come from before writing any —
+      inventing
       reviews of real businesses is not on
 - [ ] The eight profiles are still invented placeholders with no accounts
       behind them
@@ -42,7 +43,7 @@ two at once.
       role check
 - [ ] Follower and following **lists**, not just the counts — a page or a
       panel showing who they are
-- [ ] Real photographs for the cafes instead of one emoji each; needs a
+- [ ] Real photographs for the matcha houses instead of one emoji each; needs a
       Supabase storage bucket
 - [ ] A favicon file and the social preview tags (an emoji data-uri stands in
       for the favicon today)

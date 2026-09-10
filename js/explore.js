@@ -68,7 +68,7 @@ async function loadNewcomers() {
   box.innerHTML = data.map(personCard).join('');
 }
 
-/* ---------- the most reviewed cafes ---------- */
+/* ---------- the most reviewed matcha houses ---------- */
 async function loadBusiest() {
   const box = document.getElementById('busiest');
   if (!box) return;
@@ -80,7 +80,7 @@ async function loadBusiest() {
     .limit(4);
 
   if (error || !data.length) {
-    box.innerHTML = emptyNote('No cafes yet', 'Matcha cafes will show up here once they are added.');
+    box.innerHTML = emptyNote('No matcha houses yet', 'Matcha houses will show up here once they are added.');
     return;
   }
 
@@ -88,7 +88,7 @@ async function loadBusiest() {
   box.innerHTML = data.map(cafeCard).join('');
 }
 
-/* ---------- every neighbourhood that has a cafe in it ---------- */
+/* ---------- every neighbourhood that has a matcha house in it ---------- */
 async function loadAreas() {
   const box = document.getElementById('areas');
   if (!box) return;
@@ -96,7 +96,7 @@ async function loadAreas() {
   const { data, error } = await sb.from('cafes').select('area');
 
   if (error || !data.length) {
-    box.innerHTML = '<span class="small muted">Areas appear here once the cafes have one.</span>';
+    box.innerHTML = '<span class="small muted">Areas appear here once the matcha houses have one.</span>';
     return;
   }
 
@@ -110,7 +110,7 @@ async function loadAreas() {
   const areas = [...counts.entries()].sort((a, b) => b[1] - a[1]);
 
   if (!areas.length) {
-    box.innerHTML = '<span class="small muted">Areas appear here once the cafes have one.</span>';
+    box.innerHTML = '<span class="small muted">Areas appear here once the matcha houses have one.</span>';
     return;
   }
 
