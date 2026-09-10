@@ -25,7 +25,10 @@ BACKLOG.md      what's planned, in order
 
 ## Deploying
 
-Every push to `main` redeploys automatically on Vercel.
+Live at <https://whisk-diary.vercel.app>.
+
+Deploys are manual until the repo is connected to Vercel - see the first
+open item in `BACKLOG.md`.
 
 ## What this is
 

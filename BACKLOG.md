@@ -6,7 +6,10 @@ two at once.
 ## Now
 
 - [x] Scaffold the repo — `index.html`, `css/style.css`, `js/app.js`
-- [x] Connect the repo to Vercel so `main` deploys on push
+- [ ] Finish the Vercel link: GitHub -> Settings -> Applications -> Vercel ->
+      Configure, add `whisk-diary` to the allowed repositories, then hit
+      Connect on it in Vercel -> whisk-diary -> Settings -> Git. Until then
+      the site is live but deploys are manual.
 - [ ] **Decide what Whisk Diary is.** One paragraph in the README: who opens
       it, what they do, why they come back. Everything below is guesswork
       until this is written.
