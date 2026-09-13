@@ -24,15 +24,16 @@ too, but a local server is safer — browsers restrict `localStorage` and
 
 ## The taskbar
 
-Five places, fixed to the bottom of the screen on every page:
+Six places, fixed to the bottom of the screen on every page:
 
 | | | |
 | --- | --- | --- |
 | 🏠 | **Home** | the newest entries in the diary, posts and reviews together |
 | 🧭 | **Explore** | the page to customise |
-| 📌 | **Write** | the raised pin in the middle — post or review |
+| 🖋️ | **Write** | the raised pen in the middle — post or review |
 | 🔎 | **Search** | profiles and matcha houses |
 | 💬 | **Messages** | private, and the only private thing here |
+| 🌷 | **My page** | your own profile |
 
 Write and Messages need an account. Rather than hiding them from a
 signed-out visitor — which makes the bar jump about depending on who is
@@ -45,7 +46,7 @@ she was going once she is in.
 | --- | --- |
 | `index.html` | Home. A feminine welcome for all matcha lovers when nobody is signed in; a greeting by name, and by the hour, when someone is. Then the newest entries. |
 | `login.html` | Log in and sign up, two tabs on one card. Checks the username is free while she types. |
-| `create.html` | **The pin.** Post or Review, behind two tabs. |
+| `create.html` | **The pen.** Post or Review, behind two tabs. Also edits a post, via `?edit=<id>`. |
 | `explore.html` | **The page to customise.** Moods, new girls, busiest matcha houses, neighbourhoods, one random entry. |
 | `search.html` | One box, two filter buttons under it. Clicking one narrows the search to that kind; clicking it again shows both. |
 | `messages.html` | Private messages. |
@@ -71,6 +72,20 @@ They are deliberately different things.
 A second review of the same matcha house **updates the first** rather than
 adding another, so an average rating means something. The form notices and
 says so before she writes.
+
+### Afterwards
+
+Your own entries carry a **⋯ menu**. A post can be pinned to the top of your
+page, edited, or deleted; a review can only be deleted.
+
+**One pinned post each.** That is a partial unique index — `unique (author_id)
+where pinned` — so the rule holds even if two browsers try at once. Pinning a
+second post unpins the first rather than failing.
+
+Editing a post stamps `edited_at`, and the card then shows both times: when it
+was posted and when it was changed, with the exact date and time on hover. The
+stamp is set by a database trigger, and only when the words, the place or the
+picture actually changed — pinning is not an edit.
 
 The stars are five real radio buttons, reversed in the markup so CSS can
 light up every star to the left of the one under the cursor. That means the
@@ -153,6 +168,22 @@ Paths are stored in the database, never whole URLs, and a check constraint
 enforces the `<uuid>/<filename>` shape — so nobody can point their picture at
 an external tracker. Nothing uploads until she presses the button, so an
 entry that fails to save leaves no orphaned file behind.
+
+### Usernames
+
+**Unique, and changeable once a day.**
+
+A unique index on `lower(username)` means `MayaSips` and `mayasips` are the
+same name, and the second one is refused. The browser checks while she types,
+purely so she finds out early; the index is what decides, and the edit form
+has a kind message for the moment two people race for the same name.
+
+A trigger refuses a second change inside 24 hours and stamps
+`username_changed_at` when one goes through. The edit page reads that stamp
+and locks the field, saying how many hours are left — but the trigger is the
+rule. Going straight at the table from the browser console gets the same
+refusal, `username_too_soon:<hours>`, which the form turns back into a
+sentence.
 
 ### Sign up
 

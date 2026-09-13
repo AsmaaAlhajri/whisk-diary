@@ -52,8 +52,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   tabPost.addEventListener('click', () => show('post'));
   tabReview.addEventListener('click', () => show('review'));
 
-  /* cafe.html links here with ?review=<slug> to review that one */
+  /* cafe.html links here with ?review=<slug> to review that one, and the
+     three dots on a post link here with ?edit=<id> to change it */
   const wantedSlug = param('review');
+  const editingId = param('edit');
   show(wantedSlug ? 'review' : 'post');
 
   /* ============================================================
@@ -71,9 +73,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let file = null;
     let objectUrl = null;
+    let existingPath = null;      /* only when editing something already saved */
 
     function reset() {
       file = null;
+      existingPath = null;
       input.value = '';
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       objectUrl = null;
@@ -104,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       hint.classList.remove('bad');
-      hint.textContent = 'Attached. It goes up when you pin the entry.';
+      hint.textContent = 'Attached. It goes up when you press the button.';
 
       file = picked;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
@@ -127,6 +131,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     return {
       file: () => file,
       reset,
+
+      /* the picture a post already had, shown so an edit does not look as
+         though it lost it */
+      hasExisting: () => !!existingPath,
+
+      showExisting(path, kind) {
+        existingPath = path;
+        const { data } = sb.storage.from('media').getPublicUrl(path);
+
+        preview.innerHTML = kind === 'video'
+          ? `<video src="${esc(data.publicUrl)}" controls playsinline></video>`
+          : `<img src="${esc(data.publicUrl)}" alt="">`;
+        preview.hidden = false;
+        clear.hidden = false;
+        text.textContent = 'Choose another';
+      },
 
       /* uploads under a fresh name and hands back what the row needs */
       async upload() {
@@ -176,50 +196,104 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /* ============================================================
-     Posting
+     Posting, and editing a post
+
+     Editing reuses this same form. The only differences are that
+     the fields arrive filled in, the button says Save, and the
+     write is an update rather than an insert - row level security
+     makes sure that update can only ever touch her own row.
      ============================================================ */
   const postMsg = document.getElementById('postMsg');
+  const postSubmit = document.getElementById('postSubmit');
+  const postPlace = document.getElementById('postPlace');
+
+  if (editingId) {
+    const { data: existing } = await sb
+      .from('posts')
+      .select('id,author_id,body,place,media_path,media_type')
+      .eq('id', editingId)
+      .maybeSingle();
+
+    if (!existing || existing.author_id !== me.id) {
+      /* not hers, or gone: quietly fall back to writing a new one */
+      location.replace('create.html');
+      return;
+    }
+
+    show('post');
+    tabReview.disabled = true;
+    tabReview.title = 'You are editing a post';
+
+    document.querySelector('h1').textContent = 'Change your post';
+    document.querySelector('.hand').textContent = 'the diary will note that you edited it';
+    postSubmit.textContent = 'Save changes';
+
+    postBody.value = existing.body || '';
+    postCount.textContent = postBody.value.length;
+    postPlace.value = existing.place || '';
+
+    if (existing.media_path) {
+      postMedia.showExisting(existing.media_path, existing.media_type);
+    }
+  }
 
   postForm.addEventListener('submit', async e => {
     e.preventDefault();
 
     const body = postBody.value.trim();
-    const place = document.getElementById('postPlace').value.trim();
+    const place = postPlace.value.trim();
 
-    if (!body && !postMedia.file()) {
-      postMsg.classList.remove('ok');
+    postMsg.classList.remove('ok');
+
+    /* an edit that drops the picture and the words has nothing left */
+    const keepsMedia = postMedia.file() || (editingId && postMedia.hasExisting());
+    if (!body && !keepsMedia) {
       return (postMsg.textContent = 'Write something, or add a photo.');
     }
 
-    busy(postForm, true, postMedia.file() ? 'Uploading…' : 'Pinning…');
+    busy(postForm, true, postMedia.file() ? 'Uploading…' : 'Saving…');
 
     let media;
     try {
       media = await postMedia.upload();
     } catch (err) {
       busy(postForm, false);
-      postMsg.classList.remove('ok');
       return (postMsg.textContent = `The file would not upload: ${err.message || 'unknown error'}`);
     }
 
-    const { error } = await sb.from('posts').insert({
-      author_id: me.id,
-      body,
-      place,
-      media_path: media.media_path,
-      media_type: media.media_type
-    });
+    let error;
+
+    if (editingId) {
+      const row = { body, place };
+
+      /* a new file replaces the old one; removing it clears both columns;
+         leaving it alone touches neither */
+      if (media.media_path) {
+        row.media_path = media.media_path;
+        row.media_type = media.media_type;
+      } else if (!postMedia.hasExisting()) {
+        row.media_path = null;
+        row.media_type = null;
+      }
+
+      ({ error } = await sb.from('posts').update(row).eq('id', editingId));
+    } else {
+      ({ error } = await sb.from('posts').insert({
+        author_id: me.id,
+        body,
+        place,
+        media_path: media.media_path,
+        media_type: media.media_type
+      }));
+    }
 
     busy(postForm, false);
 
-    if (error) {
-      postMsg.classList.remove('ok');
-      return (postMsg.textContent = error.message);
-    }
+    if (error) return (postMsg.textContent = error.message);
 
     postMsg.classList.add('ok');
-    postMsg.textContent = 'Pinned. Taking you to your page…';
-    toast('Written into your diary \u{1F58B}\u{FE0F}');
+    postMsg.textContent = editingId ? 'Saved. Taking you to your page…' : 'Posted. Taking you to your page…';
+    toast(editingId ? 'Post updated \u{1F58B}\u{FE0F}' : 'Written into your diary \u{1F58B}\u{FE0F}');
     setTimeout(() => {
       location.href = `profile.html?u=${encodeURIComponent(me.username)}`;
     }, 800);
@@ -306,7 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!cafeId) return (reviewMsg.textContent = 'Which matcha house is this about?');
     if (!rating) return (reviewMsg.textContent = 'Give it a rating, one to five stars.');
 
-    busy(reviewForm, true, reviewMedia.file() ? 'Uploading…' : 'Pinning…');
+    busy(reviewForm, true, reviewMedia.file() ? 'Uploading…' : 'Saving…');
 
     let media;
     try {
@@ -341,7 +415,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const slug = cafeSelect.selectedOptions[0].dataset.slug;
 
     reviewMsg.classList.add('ok');
-    reviewMsg.textContent = 'Pinned. Taking you to the matcha house…';
+    reviewMsg.textContent = 'Posted. Taking you to the matcha house…';
     toast('Your review is up \u{2B50}');
     setTimeout(() => {
       location.href = `cafe.html?c=${encodeURIComponent(slug)}`;

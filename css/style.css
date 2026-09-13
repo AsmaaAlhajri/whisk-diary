@@ -928,7 +928,7 @@ a.card:hover {
   bottom: 0;
   z-index: 60;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: .15rem;
   padding: .4rem .5rem calc(.4rem + env(safe-area-inset-bottom));
   background: rgba(255, 248, 243, .94);
@@ -1003,8 +1003,71 @@ body { padding-bottom: 5.25rem; }
   color: var(--matcha-deep);
 }
 .tag--post { background: var(--lilac); color: #5b4a7a; }
+.tag--pinned { background: var(--blush); color: #7a3b4c; }
 
 .review--post { border-left-color: var(--lilac); }
+
+/* the one post she has pinned to her page */
+.review.is-pinned {
+  border-left-color: var(--rose);
+  box-shadow: var(--lift-2);
+}
+
+/* "edited 2 days ago", sitting under the time it was written */
+.review__edited {
+  font-size: .75rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin-left: .45rem;
+}
+
+/* ---- the three dots on your own entry ---- */
+.dots { position: relative; margin-left: .35rem; flex: none; }
+
+.dots__button {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.dots__button:hover { background: var(--blush-soft); color: var(--rose); }
+
+.dots__menu {
+  position: absolute;
+  top: 2.1rem;
+  right: 0;
+  z-index: 30;
+  display: grid;
+  min-width: 11rem;
+  padding: .3rem;
+  border: var(--edge);
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: var(--lift-2);
+}
+
+.dots__menu button {
+  padding: .55rem .7rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 600;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+}
+.dots__menu button:hover { background: var(--blush-soft); color: var(--rose); }
+.dots__menu button.is-danger { color: #b5485f; }
+.dots__menu button.is-danger:hover { background: #fdeef0; }
 
 .review__place {
   margin: .6rem 0 0;
@@ -1322,6 +1385,14 @@ body { padding-bottom: 5.25rem; }
   .profile-head, .cafe-head { flex-direction: column; }
   .profile-head__actions { margin-left: 0; }
   .foot__row nav { margin-left: 0; width: 100%; }
+}
+
+/* six tabs is a squeeze on a phone: shrink the words, keep the targets */
+@media (max-width: 430px) {
+  .taskbar { gap: 0; padding-inline: .15rem; }
+  .taskbar__tab { padding-inline: .05rem; font-size: .61rem; letter-spacing: 0; }
+  .taskbar__icon { font-size: 1.1rem; }
+  .taskbar__tab:nth-child(3) .taskbar__icon { width: 2.2rem; height: 2.2rem; }
 }
 
 @media (max-width: 380px) {

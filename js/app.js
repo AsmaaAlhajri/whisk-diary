@@ -143,6 +143,11 @@ function taskbar(page) {
   bar.className = 'taskbar';
   bar.setAttribute('aria-label', 'Main');
 
+  /* her own page if she has one, the sign in page if she has not */
+  const mine = me
+    ? `profile.html?u=${encodeURIComponent(me.username)}`
+    : 'login.html?next=index.html';
+
   bar.innerHTML = `
     ${tab('index.html', 'home', '\u{1F3E0}', 'Home')}
     ${tab('explore.html', 'explore', '\u{1F9ED}', 'Explore')}
@@ -150,7 +155,8 @@ function taskbar(page) {
           '\u{1F58B}\u{FE0F}', 'Write')}
     ${tab('search.html', 'search', '\u{1F50E}', 'Search')}
     ${tab(gated ? gated + 'messages.html' : 'messages.html', 'messages',
-          '\u{1F4AC}', 'Messages')}`;
+          '\u{1F4AC}', 'Messages')}
+    ${tab(mine, 'profile', '\u{1F337}', 'My page')}`;
 
   return bar;
 }
@@ -265,16 +271,61 @@ function mediaHtml(item) {
     : `<div class="media"><img src="${url}" alt="" loading="lazy"></div>`;
 }
 
+/* ============================================================
+   The three dots
+
+   Shown only on your own entries, and only listing what that
+   kind allows: a post may be pinned, edited or deleted; a review
+   may only be deleted. Every page gets this for free because the
+   clicks are caught once, at the bottom of this file.
+   ============================================================ */
+function ownerMenu(kind, item) {
+  const me = Me.profile();
+  if (!me || me.id !== item.author_id) return '';
+
+  const pin = item.pinned
+    ? `<button type="button" data-act="unpin">Unpin from my page</button>`
+    : `<button type="button" data-act="pin">Pin to my page</button>`;
+
+  const forPost = kind === 'post'
+    ? `${pin}<button type="button" data-act="edit">Edit</button>`
+    : '';
+
+  return `
+    <div class="dots" data-kind="${kind}" data-id="${esc(item.id)}">
+      <button class="dots__button" type="button" aria-haspopup="true" aria-expanded="false"
+              aria-label="More for this ${kind}">&#8943;</button>
+      <div class="dots__menu" hidden>
+        ${forPost}
+        <button type="button" data-act="delete" class="is-danger">Delete</button>
+      </div>
+    </div>`;
+}
+
+/* "3 days ago", plus "edited an hour ago" when it has been changed. The
+   exact stamp is on the title, so hovering gives the real date and time. */
+function stamps(item) {
+  const made = `<time class="review__when" datetime="${item.created_at}"
+                      title="Posted ${fullWhen(item.created_at)}">${when(item.created_at)}</time>`;
+
+  if (!item.edited_at) return made;
+
+  return `${made}<span class="review__edited"
+                       title="Edited ${fullWhen(item.edited_at)}">edited ${when(item.edited_at)}</span>`;
+}
+
 /* a post: an entry about nothing in particular, and the only kind that
    carries a place */
 function postCard(p) {
   return `
-    <article class="review review--post">
+    <article class="review review--post${p.pinned ? ' is-pinned' : ''}" data-entry="${esc(p.id)}">
       <div class="review__top">
         ${faceHtml(p, 'face face--sm')}
         <a class="review__who" href="profile.html?u=${encodeURIComponent(p.username || '')}">${esc(p.nickname || p.username || 'Someone')}</a>
         <span class="tag tag--post">Post</span>
-        <time class="review__when" datetime="${p.created_at}">${when(p.created_at)}</time>
+        ${p.pinned ? `<span class="tag tag--pinned">\u{1F4CC} Pinned</span>` : ''}
+        ${stamps(p)}
+        ${ownerMenu('post', p)}
       </div>
       ${p.body ? `<p class="review__body">${esc(p.body)}</p>` : ''}
       ${mediaHtml(p)}
@@ -295,11 +346,12 @@ function reviewRow(r, show) {
        <a class="review__who" href="profile.html?u=${encodeURIComponent(who.username || '')}">${esc(who.nickname || who.username || 'Someone')}</a>`;
 
   return `
-    <article class="review">
+    <article class="review" data-entry="${esc(r.id)}">
       <div class="review__top">
         ${head}
         <span class="stars" aria-label="${r.rating} out of 5">${'★'.repeat(r.rating)}<span style="color:var(--rule)">${'★'.repeat(5 - r.rating)}</span></span>
-        <time class="review__when" datetime="${r.created_at}">${when(r.created_at)}</time>
+        ${stamps(r)}
+        ${ownerMenu('review', r)}
       </div>
       ${r.body ? `<p class="review__body">${esc(r.body)}</p>` : ''}
       ${mediaHtml(r)}
@@ -358,6 +410,91 @@ function when(iso) {
 function joinedOn(iso) {
   return new Date(iso).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 }
+
+/* the real date and time, for the tooltip behind a relative one */
+function fullWhen(iso) {
+  return new Date(iso).toLocaleString('en-GB', {
+    day: 'numeric', month: 'long', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+/* ============================================================
+   The three dots, wired once for every page
+
+   Clicks are caught on the document, so a page that draws entries
+   after loading - which is all of them - needs no wiring of its
+   own. Row level security is the real guard here: the delete and
+   update below only touch rows the signed-in girl owns, whatever
+   id this code sends.
+   ============================================================ */
+document.addEventListener('click', async e => {
+  /* clicking anywhere else closes an open menu */
+  const inside = e.target.closest('.dots');
+  document.querySelectorAll('.dots__menu').forEach(menu => {
+    if (menu.parentElement !== inside) {
+      menu.hidden = true;
+      menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  if (!inside) return;
+
+  const toggle = e.target.closest('.dots__button');
+  if (toggle) {
+    const menu = inside.querySelector('.dots__menu');
+    menu.hidden = !menu.hidden;
+    toggle.setAttribute('aria-expanded', String(!menu.hidden));
+    return;
+  }
+
+  const button = e.target.closest('[data-act]');
+  if (!button) return;
+
+  const kind = inside.dataset.kind;
+  const id = inside.dataset.id;
+  const table = kind === 'post' ? 'posts' : 'reviews';
+
+  inside.querySelector('.dots__menu').hidden = true;
+
+  if (button.dataset.act === 'edit') {
+    location.href = `create.html?edit=${encodeURIComponent(id)}`;
+    return;
+  }
+
+  if (button.dataset.act === 'delete') {
+    const what = kind === 'post' ? 'post' : 'review';
+    if (!confirm(`Delete this ${what}? It cannot be brought back.`)) return;
+
+    const { error } = await sb.from(table).delete().eq('id', id);
+    if (error) return toast('That would not delete.');
+
+    const card = document.querySelector(`[data-entry="${CSS.escape(id)}"]`);
+    if (card) card.remove();
+    toast(`${what[0].toUpperCase()}${what.slice(1)} deleted.`);
+    return;
+  }
+
+  /* pinning: unpin whatever is pinned first, because the database allows
+     only one and would refuse the second */
+  if (button.dataset.act === 'pin' || button.dataset.act === 'unpin') {
+    const me = Me.profile();
+    if (!me) return;
+
+    const wantPinned = button.dataset.act === 'pin';
+
+    if (wantPinned) {
+      await sb.from('posts').update({ pinned: false })
+        .eq('author_id', me.id).eq('pinned', true);
+    }
+
+    const { error } = await sb.from('posts').update({ pinned: wantPinned }).eq('id', id);
+    if (error) return toast('That would not pin.');
+
+    toast(wantPinned ? 'Pinned to your page \u{1F4CC}' : 'Unpinned.');
+    setTimeout(() => location.reload(), 700);
+  }
+});
 
 function toast(text) {
   let el = document.querySelector('.toast');

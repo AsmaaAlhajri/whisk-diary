@@ -74,7 +74,7 @@ async function loadReviews(cafe) {
 
   const { data, error } = await sb
     .from('reviews')
-    .select('id,rating,body,created_at,media_path,media_type,profiles(username,nickname,avatar,avatar_path)')
+    .select('id,author_id,rating,body,created_at,media_path,media_type,profiles(username,nickname,avatar,avatar_path)')
     .eq('cafe_id', cafe.id)
     .order('created_at', { ascending: false });
 

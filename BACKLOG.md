@@ -32,8 +32,11 @@ two at once.
 
 ## Next
 
-- [ ] Nobody can edit or delete their own post or review from the site. The
-      policies already allow both; the buttons are missing.
+- [ ] A review cannot be edited from the three dots, only deleted or
+      rewritten from the write page. Worth making consistent with posts.
+- [ ] Delete asks through the browser's own confirm box, which looks nothing
+      like the rest of the diary. A small in-page confirmation would be nicer.
+
 - [ ] **Deleting an account leaves its photos and videos behind.** The
       database cascades, the storage buckets do not. Needs an edge function on
       user deletion, or a sweep for folders with no matching profile.
@@ -89,6 +92,13 @@ two at once.
 - [x] Filter the search to one kind and show just that, undivided
 - [x] Google and Apple sign-in buttons, wired and degrading gracefully until
       the providers are switched on
+- [x] Post and Review as the button names, instead of "pin this ..."
+- [x] A three-dots menu on your own entries: pin, edit or delete a post;
+      delete a review
+- [x] One pinned post per page, held by a partial unique index
+- [x] Posted and edited times on a post, both shown
+- [x] My page in the taskbar
+- [x] One username change a day, enforced by a trigger
 
 ## Decided, for the record
 

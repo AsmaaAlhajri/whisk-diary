@@ -129,7 +129,7 @@ async function loadRandomEntry() {
 
   const { data, error } = await sb
     .from('reviews')
-    .select('id,rating,body,created_at,media_path,media_type,profiles(username,nickname,avatar,avatar_path),cafes(name,slug,emoji)')
+    .select('id,author_id,rating,body,created_at,media_path,media_type,profiles(username,nickname,avatar,avatar_path),cafes(name,slug,emoji)')
     .order('created_at', { ascending: false })
     .limit(20);
 

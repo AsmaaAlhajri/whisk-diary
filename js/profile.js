@@ -96,7 +96,7 @@ async function loadEntries(person, mine) {
 
   const [reviews, posts] = await Promise.all([
     sb.from('reviews')
-      .select('id,rating,body,created_at,media_path,media_type,cafes(name,slug,emoji)')
+      .select('id,author_id,rating,body,created_at,media_path,media_type,cafes(name,slug,emoji)')
       .eq('author_id', person.id)
       .order('created_at', { ascending: false }),
 
@@ -111,10 +111,12 @@ async function loadEntries(person, mine) {
     return;
   }
 
+  /* newest first, except the one pinned post, which sits at the top of her
+     page however old it is - that is what pinning is for */
   const entries = [
-    ...(reviews.data || []).map(r => ({ at: r.created_at, html: reviewRow(r, 'cafe') })),
-    ...(posts.data || []).map(p => ({ at: p.created_at, html: postCard(p) }))
-  ].sort((a, b) => new Date(b.at) - new Date(a.at));
+    ...(reviews.data || []).map(r => ({ at: r.created_at, pinned: false, html: reviewRow(r, 'cafe') })),
+    ...(posts.data || []).map(p => ({ at: p.created_at, pinned: !!p.pinned, html: postCard(p) }))
+  ].sort((a, b) => (b.pinned - a.pinned) || (new Date(b.at) - new Date(a.at)));
 
   if (!entries.length) {
     box.innerHTML = emptyNote(

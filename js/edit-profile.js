@@ -208,6 +208,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stale.length) await sb.storage.from('avatars').remove(stale);
   }
 
+  /* ============================================================
+     One username change a day
+
+     The database refuses a second change inside 24 hours - a
+     trigger, so it holds however the change is attempted. This
+     only reads the clock to say so before she retypes her name
+     for nothing.
+     ============================================================ */
+  const { data: ownRow } = await sb
+    .from('profiles')
+    .select('username_changed_at')
+    .eq('id', me.id)
+    .maybeSingle();
+
+  const changedAt = ownRow && ownRow.username_changed_at
+    ? new Date(ownRow.username_changed_at)
+    : null;
+
+  const nextChangeAt = changedAt ? new Date(changedAt.getTime() + 864e5) : null;
+  const lockedUntil = nextChangeAt && nextChangeAt > new Date() ? nextChangeAt : null;
+
+  function hoursLeft() {
+    return Math.max(1, Math.ceil((lockedUntil - new Date()) / 36e5));
+  }
+
+  if (lockedUntil) {
+    username.readOnly = true;
+    hint.textContent =
+      `You changed your username in the last day, so it is fixed for another ${hoursLeft()} ${hoursLeft() === 1 ? 'hour' : 'hours'}.`;
+    hint.classList.add('bad');
+  }
+
   /* ---------- as she types ---------- */
   bio.addEventListener('input', () => { bioCount.textContent = bio.value.length; });
 
@@ -307,6 +339,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       /* 23505 is the unique index on lower(username) doing its job */
       if (error.code === '23505' || /duplicate key/i.test(error.message)) {
         return say(`@${wantedName} is already someone's. Pick another and save again.`);
+      }
+
+      /* the trigger raises username_too_soon:<hours left> */
+      const tooSoon = /username_too_soon:(\d+)/.exec(error.message || '');
+      if (tooSoon) {
+        const hrs = Number(tooSoon[1]);
+        username.value = me.username;
+        return say(
+          `A username can only be changed once a day. Try again in ${hrs} ${hrs === 1 ? 'hour' : 'hours'}.`
+        );
       }
       if (/username_format/i.test(error.message)) {
         return say('That username has a character the diary will not take.');

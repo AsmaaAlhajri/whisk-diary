@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Whisk Diary &middot; write</title>
-<meta name="description" content="Pin a post to the diary, or review a matcha house out of five stars.">
+<meta name="description" content="Write a post for the diary, or review a matcha house out of five stars.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B5%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +37,7 @@
       <label for="postPlace">Where were you? <span class="muted">(optional)</span></label>
       <input id="postPlace" type="text" maxlength="80" autocomplete="off"
              placeholder="Salmiya, by the water">
-      <p class="field__hint">Only posts carry a place. Reviews are pinned to a matcha house instead.</p>
+      <p class="field__hint">Only posts carry a place. A review belongs to its matcha house instead.</p>
     </div>
 
     <div class="field">
@@ -53,7 +53,7 @@
     </div>
 
     <p class="msg" id="postMsg" role="status"></p>
-    <button class="btn" type="submit" style="width:100%">Pin this post</button>
+    <button class="btn" type="submit" style="width:100%" id="postSubmit">Post</button>
   </form>
 
   <!-- A REVIEW: one matcha house, one to five stars -->
@@ -99,7 +99,7 @@
     </div>
 
     <p class="msg" id="reviewMsg" role="status"></p>
-    <button class="btn btn--blush" type="submit" style="width:100%">Pin this review</button>
+    <button class="btn btn--blush" type="submit" style="width:100%" id="reviewSubmit">Review</button>
   </form>
 
 </main>
