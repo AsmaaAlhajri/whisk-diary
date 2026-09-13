@@ -857,6 +857,320 @@ a.card:hover {
 }
 .cafe-head__emoji { font-size: 3rem; line-height: 1; }
 
+/* 13b. The taskbar ---------------------------------------------------- */
+/* Five places along the bottom of the screen, always within reach. It sits
+   above everything and the body is padded so the last card is never hidden
+   underneath it. */
+.taskbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: .15rem;
+  padding: .4rem .5rem calc(.4rem + env(safe-area-inset-bottom));
+  background: rgba(255, 248, 243, .94);
+  backdrop-filter: blur(12px);
+  border-top: var(--edge);
+  box-shadow: 0 -8px 24px rgba(193, 116, 138, .10);
+}
+
+body { padding-bottom: 5.25rem; }
+
+.taskbar__tab {
+  display: grid;
+  justify-items: center;
+  gap: .15rem;
+  padding: .45rem .2rem .35rem;
+  border-radius: 14px;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: background .16s ease, color .16s ease;
+}
+.taskbar__tab:hover { background: var(--blush-soft); color: var(--rose); }
+
+.taskbar__tab[aria-current="page"] {
+  background: var(--matcha-soft);
+  color: var(--matcha-deep);
+}
+
+.taskbar__icon { font-size: 1.2rem; line-height: 1.1; }
+
+/* the pin in the middle is the one you are meant to press */
+.taskbar__tab:nth-child(3) .taskbar__icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-top: -1.1rem;
+  border-radius: 50%;
+  background: var(--rose);
+  color: #fff;
+  box-shadow: var(--lift);
+}
+.taskbar__tab:nth-child(3):hover .taskbar__icon { background: var(--matcha-deep); }
+
+/* 13c. Media, tags and entries ---------------------------------------- */
+.media {
+  margin: .75rem 0 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--cream);
+  border: var(--edge);
+}
+.media img,
+.media video {
+  display: block;
+  width: 100%;
+  max-height: 26rem;
+  object-fit: cover;
+}
+.media video { background: #000; }
+
+.tag {
+  padding: .12rem .5rem;
+  border-radius: 999px;
+  background: var(--matcha-soft);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--matcha-deep);
+}
+.tag--post { background: var(--lilac); color: #5b4a7a; }
+
+.review--post { border-left-color: var(--lilac); }
+
+.review__place {
+  margin: .6rem 0 0;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* 13d. Writing a post or a review -------------------------------------- */
+.write-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .3rem;
+  padding: .3rem;
+  margin-bottom: 1.5rem;
+  border: var(--edge);
+  border-radius: 999px;
+  background: var(--cream);
+}
+
+.write-tab {
+  padding: .6rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.write-tab[aria-selected="true"] {
+  background: var(--card);
+  color: var(--matcha-deep);
+  box-shadow: var(--lift);
+}
+
+/* the five stars, as real radio buttons so the keyboard works */
+.stars-input {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: .15rem;
+}
+
+.stars-input input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.stars-input label {
+  margin: 0;
+  padding: .1rem .1rem;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--rule);
+  cursor: pointer;
+  transition: color .12s ease, transform .12s ease;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.stars-input label:hover { transform: scale(1.12); }
+
+/* a star lights up when it, or any star to its right in the source - which
+   is to its left on screen - is chosen or hovered */
+.stars-input input:checked ~ label,
+.stars-input label:hover,
+.stars-input label:hover ~ label { color: var(--gold); }
+
+.stars-input input:focus-visible + label {
+  outline: 3px solid var(--rose);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.stars-value {
+  margin-left: .6rem;
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  align-self: center;
+}
+
+.media-preview {
+  margin-top: .75rem;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px dashed var(--blush);
+}
+.media-preview img,
+.media-preview video { display: block; width: 100%; max-height: 18rem; object-fit: cover; }
+
+/* 13e. Messages -------------------------------------------------------- */
+.dm {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.dm__list {
+  border: var(--edge);
+  border-radius: var(--round);
+  background: var(--card);
+  box-shadow: var(--lift);
+  overflow: hidden;
+}
+
+.dm__person {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  width: 100%;
+  padding: .8rem 1rem;
+  border: 0;
+  border-bottom: var(--edge);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.dm__person:last-child { border-bottom: 0; }
+.dm__person:hover { background: var(--blush-soft); }
+.dm__person[aria-current="true"] { background: var(--matcha-soft); }
+
+.dm__who { font-weight: 700; font-size: .93rem; }
+.dm__peek {
+  font-size: .8rem;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 11rem;
+}
+
+.dm__unread {
+  margin-left: auto;
+  min-width: 1.3rem;
+  padding: .05rem .4rem;
+  border-radius: 999px;
+  background: var(--rose);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.dm__thread {
+  display: flex;
+  flex-direction: column;
+  min-height: 24rem;
+  border: var(--edge);
+  border-radius: var(--round);
+  background: var(--card);
+  box-shadow: var(--lift);
+  overflow: hidden;
+}
+
+.dm__head {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .8rem 1rem;
+  border-bottom: var(--edge);
+  background: var(--cream);
+}
+
+.dm__scroll {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: 1rem;
+  max-height: 26rem;
+  overflow-y: auto;
+}
+
+.bubble {
+  max-width: 78%;
+  padding: .6rem .9rem;
+  border-radius: 16px;
+  font-size: .93rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.bubble--them {
+  align-self: flex-start;
+  background: var(--cream);
+  border-bottom-left-radius: 5px;
+}
+
+.bubble--me {
+  align-self: flex-end;
+  background: var(--matcha-soft);
+  border-bottom-right-radius: 5px;
+}
+
+.bubble time {
+  display: block;
+  margin-top: .2rem;
+  font-size: .7rem;
+  color: var(--ink-soft);
+}
+
+.dm__form {
+  display: flex;
+  gap: .5rem;
+  padding: .75rem;
+  border-top: var(--edge);
+}
+.dm__form input {
+  flex: 1;
+  padding: .65rem .9rem;
+  border: var(--edge);
+  border-radius: 999px;
+  background: var(--paper);
+  font: inherit;
+  color: var(--ink);
+}
+.dm__form input:focus { border-color: var(--blush); }
+
 /* 14. Footer --------------------------------------------------------- */
 .foot {
   margin-top: 3.5rem;
@@ -928,6 +1242,11 @@ a.card:hover {
 /* 16. Narrow screens ------------------------------------------------- */
 @media (max-width: 860px) {
   .settings { grid-template-columns: 1fr; }
+
+  /* the message list becomes a screen of its own, not a sidebar */
+  .dm { grid-template-columns: 1fr; }
+  .dm.is-reading .dm__list { display: none; }
+  .dm:not(.is-reading) .dm__thread { display: none; }
 }
 
 @media (max-width: 720px) {

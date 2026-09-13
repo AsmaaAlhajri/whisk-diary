@@ -115,23 +115,36 @@ function drawGreeting() {
   document.getElementById('signOut').addEventListener('click', () => Me.signOut());
 }
 
-/* the newest reviews anywhere in the diary */
+/* The newest entries anywhere in the diary, posts and reviews together.
+   Two tables, so both are asked for the newest few and the winners are
+   picked here. */
 async function loadLatest() {
   const box = document.getElementById('latest');
 
-  const { data, error } = await sb
-    .from('reviews')
-    .select('id,rating,body,created_at,profiles(username,nickname,avatar),cafes(name,slug,emoji)')
-    .order('created_at', { ascending: false })
-    .limit(4);
+  const [reviews, posts] = await Promise.all([
+    sb.from('reviews')
+      .select('id,rating,body,created_at,media_path,media_type,profiles(username,nickname,avatar,avatar_path),cafes(name,slug,emoji)')
+      .order('created_at', { ascending: false })
+      .limit(6),
 
-  if (error || !data || !data.length) {
+    sb.from('post_cards')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(6)
+  ]);
+
+  const entries = [
+    ...(reviews.data || []).map(r => ({ at: r.created_at, html: reviewRow(r, 'person') })),
+    ...(posts.data || []).map(p => ({ at: p.created_at, html: postCard(p) }))
+  ].sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 5);
+
+  if (!entries.length) {
     box.innerHTML = emptyNote('A blank page', 'No entries yet - the first one will show up here.');
     return;
   }
 
   box.classList.add('fade-in');
-  box.innerHTML = data.map(r => reviewRow(r, 'person')).join('');
+  box.innerHTML = entries.map(e => e.html).join('');
 }
 
 /* the most followed profiles */

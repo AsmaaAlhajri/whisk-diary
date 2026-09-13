@@ -5,77 +5,88 @@ two at once.
 
 ## Now
 
-- [x] Scaffold the repo — `index.html`, `css/style.css`, `js/app.js`
-- [x] **Decide what Whisk Diary is.** A reading room: a community diary of
-      matcha houses in Kuwait. Accounts are public pages, not posting rights.
-- [x] Pick the stack — staying with plain HTML, CSS and JS
-- [x] Settle the visual direction — cream paper, matcha green, blush pink;
-      Fraunces, Quicksand and Caveat
-- [x] Build the seven real screens
-- [x] Supabase: tables, views, row level security, the sign-up trigger
-- [ ] **Turn off email confirmation while building.** Authentication → Sign In
-      / Providers → Email → *Confirm email* off. Until then a new account
-      cannot log in without clicking the email.
-- [ ] Turn on leaked password protection (Authentication → Policies)
+- [ ] **Give each of the six matcha houses an area, a description and a
+      price.** They have only a name and an icon. Until the areas are in, the
+      *By neighbourhood* shelf on Explore is empty; until the descriptions are
+      in, most mood tiles find nothing.
 - [ ] Finish the Vercel link: GitHub → Settings → Applications → Vercel →
       Configure, add `whisk-diary` to the allowed repositories, then hit
-      Connect in Vercel → whisk-diary → Settings → Git. Until then the site
-      is live but deploys are manual.
-
-- [x] Profile pictures — upload, replace, remove; the emoji face is the
-      fallback for anyone who has not uploaded one
-- [x] Make the two search filter buttons work the obvious way: clicking
-      Profiles shows profiles. They used to do the opposite
+      Connect in Vercel → whisk-diary → Settings → Git. Until then
+      whisk-diary.vercel.app still serves the old placeholder page.
+- [ ] Turn on leaked password protection (Authentication → Policies). The one
+      thing the security advisor still flags.
+- [ ] Decide about email confirmation. It is **on**, so a new girl cannot log
+      in until she clicks the email — one real person has already done it, so
+      it works, but it is friction while you are testing.
 
 ## Next
 
-- [x] Replace the invented matcha houses with the real six — Gary's Matcha, Matcha
-      Matcha, Matcha Osaka, Cha Yen, Abu's Matcha, Neighbors Matcha
-- [ ] **Give each of the six an area, a line of description and a price.**
-      They have only a name and an icon. Until the areas are in, the *By
-      neighbourhood* shelf on Explore is empty; until the descriptions are in,
-      most mood tiles find nothing
-- [ ] Reviews: there are none, since the old ones went with the invented
-      matcha houses. Decide where real ones come from before writing any —
-      inventing
-      reviews of real businesses is not on
-- [ ] The eight profiles are still invented placeholders with no accounts
-      behind them
+- [ ] Nobody can edit or delete their own post or review from the site. The
+      policies already allow both; the buttons are missing.
+- [ ] **Deleting an account leaves its photos and videos behind.** The
+      database cascades, the storage buckets do not. Needs an edge function on
+      user deletion, or a sweep for folders with no matching profile.
+- [ ] Messages do not arrive on their own — a thread only updates when you
+      send or reopen it. Supabase realtime on `direct_messages` would fix it.
+- [ ] No unread count on the Messages tab itself, only inside the page.
+- [ ] Nothing stops a post being written twice by double-pressing the button
+      on a slow connection.
+- [ ] Shrink pictures before uploading. A 2 MB photo is sent whole and then
+      shown in a circle a few millimetres across; a canvas resize to about
+      400px square first would fix it. Videos are worse — 25 MB, untouched.
+- [ ] Report or block. There is a message box and public posts, and no way at
+      all to deal with someone unpleasant. Worth doing before the site is
+      shared widely.
+- [ ] The eight placeholder profiles are invented and sit alongside real
+      accounts. Decide whether they stay.
 - [ ] Customise Explore. The shelves are in `explore.html`, the mood tiles are
-      the `MOODS` list in `js/explore.js`
-- [ ] Decide how reviews get written, since visitors cannot write them:
-      straight into the dashboard, a migration, or an admin page behind a
-      role check
-- [ ] Follower and following **lists**, not just the counts — a page or a
-      panel showing who they are
-- [ ] Real photographs for the matcha houses instead of one emoji each. The
-      `avatars` bucket pattern from profile pictures is the model to copy
-- [ ] Shrink profile pictures before uploading. A 2 MB photo is sent whole and
-      then displayed in a circle a few millimetres across, which is slow on
-      phone data. A canvas resize down to about 400px square before upload
-      would fix it
+      the `MOODS` list in `js/explore.js`.
+- [ ] Follower and following **lists**, not just the counts.
+- [ ] Real photographs for the matcha houses instead of one emoji each.
 - [ ] A favicon file and the social preview tags (an emoji data-uri stands in
-      for the favicon today)
-- [ ] Keep the SQL in the repo. The schema, the policies and the trigger only
-      exist inside the Supabase project right now — nothing in git describes
-      the database, so it cannot be reviewed, diffed or rebuilt from here
+      for the favicon today).
+- [ ] Keep the SQL in the repo. The schema, the policies and the triggers only
+      exist inside the Supabase project — nothing in git describes the
+      database, so it cannot be reviewed, diffed or rebuilt from here.
 
 ## Later
 
 - [ ] Custom domain on Vercel
 - [ ] Accessibility pass: focus states, contrast, keyboard order
 - [ ] Arabic translation and RTL layout
-- [ ] Paging on search once there are more than about fifty of anything —
+- [ ] Paging on search, and on the feed, once there is enough to need it —
       the queries are capped at 48 results today
 - [ ] Let a girl delete her own account
+- [ ] Comments, if the diary ever wants them
 - [ ] Analytics, if there is a question worth answering with them
+
+## Done
+
+- [x] Scaffold, visual direction, and the first seven screens
+- [x] Supabase: tables, views, row level security, the sign-up trigger
+- [x] Unique usernames, enforced on `lower(username)`
+- [x] Profile pictures — upload, replace, remove, with the emoji as fallback
+- [x] Replace the invented matcha houses with the real six
+- [x] Call them matcha houses, not cafes
+- [x] Search filter buttons that filter the obvious way
+- [x] Taskbar at the bottom: Home, Explore, Write, Search, Messages
+- [x] Posts and reviews written from the site, each with a photo or a video
+- [x] Star ratings, one to five, one review per matcha house per girl
+- [x] Locations, on posts only
+- [x] Direct messages
 
 ## Decided, for the record
 
-- **Anyone can read everything, signed in or not.** Accounts are public by
-  design; the only private thing is an email address.
-- **No posting, commenting, liking or rating from the site.** Enforced in the
-  database, not just in the interface — there is no policy that lets a
-  visitor write to `reviews`, `follows` or `cafes`.
+- **Whisk Diary is a community diary, not a reading room.** It began as
+  read-only — no policy anywhere let a visitor write. That was reversed in
+  September 2026 when posts, reviews and messages arrived.
+- **Nobody can write as anybody else.** Every write policy is keyed on
+  `my_profile_id()`, so `author_id` and `sender_id` cannot be spoofed from the
+  browser, whatever the interface sends.
+- **Accounts are public. Messages are not.** A signed-out visitor is refused
+  `direct_messages` at the privilege level, before row level security is even
+  consulted.
+- **Matcha houses are added by you, not by girls using the site.** There is no
+  write policy on `cafes`, on purpose.
 - **Whisk Diary is separate from Whisk Me Away**, including its Supabase
   project, so the two never share accounts.

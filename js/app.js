@@ -93,11 +93,6 @@ function mountChrome() {
   header.innerHTML = `
     <div class="wrap topbar__row">
       <a class="logo" href="index.html">Whisk Diary <span>\u{1F375}</span></a>
-      <nav class="nav" aria-label="Main">
-        ${link('index.html', 'Home', 'home')}
-        ${link('explore.html', 'Explore', 'explore')}
-        ${link('search.html', 'Search', 'search')}
-      </nav>
       <span class="topbar__spacer"></span>
       <form class="searchbox" role="search" id="topSearch">
         <span class="searchbox__icon" aria-hidden="true">\u{1F50E}</span>
@@ -112,19 +107,52 @@ function mountChrome() {
   footer.className = 'foot';
   footer.innerHTML = `
     <div class="wrap foot__row">
-      <span>Whisk Diary · a reading room for matcha lovers · Kuwait 2026</span>
+      <span>Whisk Diary · a community diary for matcha lovers · Kuwait 2026</span>
       <nav aria-label="Footer">
-        <a href="index.html">Home</a>
-        <a href="explore.html">Explore</a>
-        <a href="search.html">Search</a>
         ${me ? '<a href="edit-profile.html">Edit profile</a>' : '<a href="login.html">Sign in</a>'}
       </nav>
     </div>`;
 
   document.body.prepend(header);
   document.body.append(footer);
+  document.body.append(taskbar(page));
 
   wireSearchBox();
+}
+
+/* ============================================================
+   The taskbar
+
+   Five places, always within a thumb's reach at the bottom of the
+   screen. Write and Messages need an account; rather than hiding
+   them from a signed-out visitor - which makes the bar jump about
+   depending on who is looking - they point at the sign in page and
+   say so when she gets there.
+   ============================================================ */
+function taskbar(page) {
+  const me = Me.profile();
+  const gated = me ? null : 'login.html?next=';
+
+  const tab = (href, key, icon, label) => `
+    <a class="taskbar__tab" href="${href}"${page === key ? ' aria-current="page"' : ''}>
+      <span class="taskbar__icon" aria-hidden="true">${icon}</span>
+      <span class="taskbar__label">${label}</span>
+    </a>`;
+
+  const bar = document.createElement('nav');
+  bar.className = 'taskbar';
+  bar.setAttribute('aria-label', 'Main');
+
+  bar.innerHTML = `
+    ${tab('index.html', 'home', '\u{1F3E0}', 'Home')}
+    ${tab('explore.html', 'explore', '\u{1F9ED}', 'Explore')}
+    ${tab(gated ? gated + 'create.html' : 'create.html', 'create',
+          '\u{1F4CC}', 'Write')}
+    ${tab('search.html', 'search', '\u{1F50E}', 'Search')}
+    ${tab(gated ? gated + 'messages.html' : 'messages.html', 'messages',
+          '\u{1F4AC}', 'Messages')}`;
+
+  return bar;
 }
 
 /* ============================================================
@@ -225,6 +253,35 @@ function cafeMeta(c) {
   return parts.length ? `<p class="card__meta">${parts.join(' · ')}</p>` : '';
 }
 
+/* the photo or video hung on a post or a review, if there is one */
+function mediaHtml(item) {
+  if (!item || !item.media_path) return '';
+
+  const { data } = sb.storage.from('media').getPublicUrl(item.media_path);
+  const url = esc(data.publicUrl);
+
+  return item.media_type === 'video'
+    ? `<div class="media"><video src="${url}" controls preload="metadata" playsinline></video></div>`
+    : `<div class="media"><img src="${url}" alt="" loading="lazy"></div>`;
+}
+
+/* a post: an entry about nothing in particular, and the only kind that
+   carries a place */
+function postCard(p) {
+  return `
+    <article class="review review--post">
+      <div class="review__top">
+        ${faceHtml(p, 'face face--sm')}
+        <a class="review__who" href="profile.html?u=${encodeURIComponent(p.username || '')}">${esc(p.nickname || p.username || 'Someone')}</a>
+        <span class="tag tag--post">Post</span>
+        <time class="review__when" datetime="${p.created_at}">${when(p.created_at)}</time>
+      </div>
+      ${p.body ? `<p class="review__body">${esc(p.body)}</p>` : ''}
+      ${mediaHtml(p)}
+      ${p.place ? `<p class="review__place"><span aria-hidden="true">\u{1F4CD}</span> ${esc(p.place)}</p>` : ''}
+    </article>`;
+}
+
 /* one review. `show` picks what the line above it names: the matcha house it is
    about (on a profile) or the person who wrote it (on a matcha house page). */
 function reviewRow(r, show) {
@@ -244,7 +301,8 @@ function reviewRow(r, show) {
         <span class="stars" aria-label="${r.rating} out of 5">${'★'.repeat(r.rating)}<span style="color:var(--rule)">${'★'.repeat(5 - r.rating)}</span></span>
         <time class="review__when" datetime="${r.created_at}">${when(r.created_at)}</time>
       </div>
-      <p class="review__body">${esc(r.body)}</p>
+      ${r.body ? `<p class="review__body">${esc(r.body)}</p>` : ''}
+      ${mediaHtml(r)}
     </article>`;
 }
 

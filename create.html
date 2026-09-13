@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whisk Diary &middot; write</title>
+<meta name="description" content="Pin a post to the diary, or review a matcha house out of five stars.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="create">
+
+<main class="wrap page" style="max-width:40rem">
+
+  <p class="eyebrow"><span aria-hidden="true">&#128204;</span> Pin something</p>
+  <h1>What are you writing?</h1>
+  <p class="hand">a little entry, or a verdict on a matcha house</p>
+
+  <div class="write-tabs" role="tablist" aria-label="Post or review" style="margin-top:1.4rem">
+    <button class="write-tab" role="tab" id="tabPost"   aria-selected="true"  type="button">Post</button>
+    <button class="write-tab" role="tab" id="tabReview" aria-selected="false" type="button">Review</button>
+  </div>
+
+  <!-- A POST: anything at all, and the only kind with a place -->
+  <form class="paper taped" id="postForm" novalidate>
+    <div class="field">
+      <label for="postBody">Your entry</label>
+      <textarea id="postBody" maxlength="1000"
+                placeholder="Today the foam was perfect and I have thought about nothing else since."></textarea>
+      <p class="field__hint"><span id="postCount">0</span>/1000</p>
+    </div>
+
+    <div class="field">
+      <label for="postPlace">Where were you? <span class="muted">(optional)</span></label>
+      <input id="postPlace" type="text" maxlength="80" autocomplete="off"
+             placeholder="Salmiya, by the water">
+      <p class="field__hint">Only posts carry a place. Reviews are pinned to a matcha house instead.</p>
+    </div>
+
+    <div class="field">
+      <label for="postMedia">A photo or a video <span class="muted">(optional)</span></label>
+      <input class="file-input" id="postMedia" type="file"
+             accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime">
+      <label class="file-button" for="postMedia">
+        <span aria-hidden="true">&#128247;</span> <span id="postMediaText">Choose a photo or video</span>
+      </label>
+      <button class="btn btn--ghost btn--small" type="button" id="postMediaClear" hidden>Remove</button>
+      <div class="media-preview" id="postPreview" hidden></div>
+      <p class="field__hint" id="postMediaHint">JPG, PNG, WEBP, GIF, MP4, WEBM or MOV, up to 25&nbsp;MB.</p>
+    </div>
+
+    <p class="msg" id="postMsg" role="status"></p>
+    <button class="btn" type="submit" style="width:100%">Pin this post</button>
+  </form>
+
+  <!-- A REVIEW: one matcha house, one to five stars -->
+  <form class="paper taped taped--green" id="reviewForm" novalidate hidden>
+    <div class="field">
+      <label for="reviewCafe">Which matcha house?</label>
+      <select id="reviewCafe" required></select>
+      <p class="field__hint" id="reviewExisting"></p>
+    </div>
+
+    <div class="field">
+      <label id="starsLabel">How many stars?</label>
+      <!-- reversed in the markup so css can light up the stars to the left -->
+      <div style="display:flex" role="group" aria-labelledby="starsLabel">
+        <div class="stars-input">
+          <input type="radio" name="rating" id="star5" value="5"><label for="star5" title="5 stars">&#9733;</label>
+          <input type="radio" name="rating" id="star4" value="4"><label for="star4" title="4 stars">&#9733;</label>
+          <input type="radio" name="rating" id="star3" value="3"><label for="star3" title="3 stars">&#9733;</label>
+          <input type="radio" name="rating" id="star2" value="2"><label for="star2" title="2 stars">&#9733;</label>
+          <input type="radio" name="rating" id="star1" value="1"><label for="star1" title="1 star">&#9733;</label>
+        </div>
+        <span class="stars-value" id="starsValue">Pick a rating</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="reviewBody">What did you think?</label>
+      <textarea id="reviewBody" maxlength="1000"
+                placeholder="Thin, grassy, and served without a word. Exactly right."></textarea>
+      <p class="field__hint"><span id="reviewCount">0</span>/1000</p>
+    </div>
+
+    <div class="field">
+      <label for="reviewMedia">A photo or a video <span class="muted">(optional)</span></label>
+      <input class="file-input" id="reviewMedia" type="file"
+             accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime">
+      <label class="file-button" for="reviewMedia">
+        <span aria-hidden="true">&#128247;</span> <span id="reviewMediaText">Choose a photo or video</span>
+      </label>
+      <button class="btn btn--ghost btn--small" type="button" id="reviewMediaClear" hidden>Remove</button>
+      <div class="media-preview" id="reviewPreview" hidden></div>
+      <p class="field__hint" id="reviewMediaHint">JPG, PNG, WEBP, GIF, MP4, WEBM or MOV, up to 25&nbsp;MB.</p>
+    </div>
+
+    <p class="msg" id="reviewMsg" role="status"></p>
+    <button class="btn btn--blush" type="submit" style="width:100%">Pin this review</button>
+  </form>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/app.js"></script>
+<script src="js/create.js"></script>
+</body>
+</html>

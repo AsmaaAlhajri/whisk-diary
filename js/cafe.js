@@ -45,7 +45,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         ${stars(cafe.avg_rating, cafe.reviews_count)}
       </div>
 
-      <span class="note-readonly"><span aria-hidden="true">&#128213;</span> Reading only</span>
+      <a class="btn" href="create.html?review=${encodeURIComponent(cafe.slug)}">
+        <span aria-hidden="true">&#11088;</span> Write a review
+      </a>
     </header>
 
     <div class="section-head">
@@ -72,7 +74,7 @@ async function loadReviews(cafe) {
 
   const { data, error } = await sb
     .from('reviews')
-    .select('id,rating,body,created_at,profiles(username,nickname,avatar)')
+    .select('id,rating,body,created_at,media_path,media_type,profiles(username,nickname,avatar,avatar_path)')
     .eq('cafe_id', cafe.id)
     .order('created_at', { ascending: false });
 
@@ -82,7 +84,7 @@ async function loadReviews(cafe) {
   }
 
   if (!data.length) {
-    box.innerHTML = emptyNote('Nobody has written about this one', 'It is waiting for its first entry.');
+    box.innerHTML = emptyNote('Nobody has written about this one', 'Be the first - press Write a review.');
     return;
   }
 

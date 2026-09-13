@@ -3,10 +3,11 @@
 
    These two values are meant to be public. The publishable key
    only ever grants what Row Level Security allows, and in this
-   project that is: read everything, write nothing, except your
-   own profile row. There is no policy that lets the browser add
-   a review, a follow or a matcha house - which is what keeps the site a
-   reading room. The secret service key is NOT here and must
+   project that is: read everything public, and write only as
+   yourself. Every write policy is keyed on my_profile_id(), so
+   author_id and sender_id cannot be forged from the browser no
+   matter what this code sends. Messages are readable only by the
+   two people in them. The secret service key is NOT here and must
    never be put in front-end code.
    ============================================================ */
 const SUPABASE_URL = 'https://wiugnudhbhbicoprfria.supabase.co';

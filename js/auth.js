@@ -94,9 +94,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await AppReady;
 
+  /* The taskbar sends her here with ?next=create.html when she presses Write
+     or Messages while signed out, so she lands where she was going instead of
+     back on the home page. Only our own pages are allowed, so the parameter
+     cannot be used to bounce anyone off to another site. */
+  const OUR_PAGES = [
+    'index.html', 'explore.html', 'search.html',
+    'create.html', 'messages.html', 'edit-profile.html'
+  ];
+  const asked = new URLSearchParams(location.search).get('next') || '';
+  const next = OUR_PAGES.includes(asked) ? asked : 'index.html';
+
+  if (next !== 'index.html') {
+    const why = next === 'create.html'
+      ? 'Sign in to pin a post or a review.'
+      : 'Sign in to read your messages.';
+    say(why, true);
+  }
+
   /* already signed in? there is nothing to do on this page */
   if (Me.signedIn()) {
-    location.replace('index.html');
+    location.replace(next);
     return;
   }
 
@@ -196,7 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     say('Welcome back. Opening your diary…', true);
-    setTimeout(() => location.replace('index.html'), 500);
+    setTimeout(() => location.replace(next), 500);
   });
 
   /* ---------- SIGN UP ---------- */
@@ -246,6 +264,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     say('Your page is ready. Taking you in…', true);
-    setTimeout(() => location.replace('index.html'), 700);
+    setTimeout(() => location.replace(next), 700);
   });
 });
