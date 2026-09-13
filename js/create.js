@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     postMsg.classList.add('ok');
     postMsg.textContent = 'Pinned. Taking you to your page…';
-    toast('Pinned to your diary \u{1F4CC}');
+    toast('Written into your diary \u{1F58B}\u{FE0F}');
     setTimeout(() => {
       location.href = `profile.html?u=${encodeURIComponent(me.username)}`;
     }, 800);

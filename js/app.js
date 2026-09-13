@@ -147,7 +147,7 @@ function taskbar(page) {
     ${tab('index.html', 'home', '\u{1F3E0}', 'Home')}
     ${tab('explore.html', 'explore', '\u{1F9ED}', 'Explore')}
     ${tab(gated ? gated + 'create.html' : 'create.html', 'create',
-          '\u{1F4CC}', 'Write')}
+          '\u{1F58B}\u{FE0F}', 'Write')}
     ${tab('search.html', 'search', '\u{1F50E}', 'Search')}
     ${tab(gated ? gated + 'messages.html' : 'messages.html', 'messages',
           '\u{1F4AC}', 'Messages')}`;

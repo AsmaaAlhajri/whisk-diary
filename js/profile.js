@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <p class="eyebrow">${mine ? 'Your entries' : 'Her entries'}</p>
         <h2>${mine ? 'Pinned to your page' : `Pinned by ${esc(person.nickname || person.username)}`}</h2>
       </div>
-      ${mine ? `<a class="btn btn--small" href="create.html">&#128204; Pin something</a>` : ''}
+      ${mine ? `<a class="btn btn--small" href="create.html">&#128395;&#65039; Write something</a>` : ''}
     </div>
 
     <div id="reviews"><div class="skeleton"></div></div>`;
@@ -120,7 +120,7 @@ async function loadEntries(person, mine) {
     box.innerHTML = emptyNote(
       mine ? 'Your page is still blank' : 'Nothing written yet',
       mine
-        ? 'Press the pin at the bottom of the screen to write your first entry.'
+        ? 'Press the pen at the bottom of the screen to write your first entry.'
         : 'This girl has not pinned anything yet.'
     );
     return;
