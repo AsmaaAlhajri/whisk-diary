@@ -383,7 +383,20 @@ function param(name) {
    Pages do `await AppReady` before drawing anything, so the
    header already knows whether anyone is signed in.
    ============================================================ */
+/* Coming back from Google or Apple, the browser lands with the tokens in the
+   url hash. supabase-js reads them itself, but two things still need doing:
+   wait for it to finish before anyone asks who is signed in, and get the
+   tokens out of the address bar afterwards so they are not sitting in her
+   history or in a link she pastes to a friend. */
+async function settleOAuthReturn() {
+  if (!/access_token|error_description/.test(location.hash)) return;
+
+  await sb.auth.getSession();
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
 const AppReady = (async () => {
+  await settleOAuthReturn();
   await Me.load();
   mountChrome();
 

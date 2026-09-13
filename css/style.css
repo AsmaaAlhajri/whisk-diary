@@ -649,6 +649,66 @@ a.card:hover {
 .auth__title { text-align: center; margin-bottom: .3rem; }
 .auth__sub { text-align: center; color: var(--ink-soft); font-size: .93rem; margin-bottom: 1.5rem; }
 
+/* Google and Apple ------------------------------------------------- */
+.providers {
+  display: grid;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.provider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  padding: .72rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--card);
+  font: inherit;
+  font-weight: 700;
+  font-size: .93rem;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.provider:hover { border-color: var(--blush); box-shadow: var(--lift); transform: translateY(-1px); }
+.provider:active { transform: none; }
+
+.provider__mark { width: 1.15rem; height: 1.15rem; flex: none; }
+
+/* a provider nobody has switched on yet: still visible, so the page does
+   not change shape, but plainly not ready */
+.provider.is-off { opacity: .45; }
+.provider.is-off:hover { border-color: var(--rule); box-shadow: none; transform: none; }
+
+.providers__note {
+  margin: -.4rem 0 1rem;
+  font-size: .8rem;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* "or with an email", with a rule either side */
+.or-line {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin: 0 0 1.2rem;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.or-line::before,
+.or-line::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
 /* the two tabs that swap the form */
 .auth__tabs {
   display: grid;

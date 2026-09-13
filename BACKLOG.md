@@ -13,6 +13,17 @@ two at once.
       Configure, add `whisk-diary` to the allowed repositories, then hit
       Connect in Vercel → whisk-diary → Settings → Git. Until then
       whisk-diary.vercel.app still serves the old placeholder page.
+- [ ] **Switch on Google sign-in.** The button is built and dimmed until you
+      do. Google Cloud Console → Credentials → OAuth client ID (Web), redirect
+      URI `https://wiugnudhbhbicoprfria.supabase.co/auth/v1/callback`, then
+      paste the id and secret into Supabase → Authentication → Providers.
+      Add `http://localhost:5273/**` and the Vercel URL to the Redirect URLs
+      list at the same time, or the trip back lands in the wrong place.
+- [ ] **Decide about Apple sign-in.** The button is built, but Apple only
+      issues credentials to Apple Developer Program members — about 99 USD a
+      year — and refuses plain http redirects, so it cannot even be tested
+      until the site is deployed over HTTPS. Leaving it off is a perfectly
+      good answer; the button explains itself.
 - [ ] Turn on leaked password protection (Authentication → Policies). The one
       thing the security advisor still flags.
 - [ ] Decide about email confirmation. It is **on**, so a new girl cannot log
@@ -74,6 +85,10 @@ two at once.
 - [x] Star ratings, one to five, one review per matcha house per girl
 - [x] Locations, on posts only
 - [x] Direct messages
+- [x] A pen, not a pin, as the write symbol
+- [x] Filter the search to one kind and show just that, undivided
+- [x] Google and Apple sign-in buttons, wired and degrading gracefully until
+      the providers are switched on
 
 ## Decided, for the record
 

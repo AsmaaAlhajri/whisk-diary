@@ -160,6 +160,59 @@ A trigger on `auth.users` (`handle_new_user`) writes the profile row from the
 `username` and `nickname` passed as sign-up metadata. If the username has been
 taken in the meantime it adds a number rather than failing the sign up.
 
+## Google and Apple sign-in
+
+The buttons are built and wired. **Neither provider works yet**, because both
+need credentials that can only come from outside this repo — and until they
+are in, the two buttons sit dimmed with a line saying so, rather than sending
+anyone to a raw JSON error page.
+
+The page asks `/auth/v1/settings` which providers are enabled and lights the
+buttons up on its own, so once you finish the steps below nothing here needs
+changing.
+
+### Google
+
+1. Google Cloud Console → APIs & Services → Credentials → **Create OAuth
+   client ID**, type *Web application*.
+2. Under *Authorised redirect URIs* add exactly:
+   `https://wiugnudhbhbicoprfria.supabase.co/auth/v1/callback`
+3. Copy the client ID and client secret into Supabase → Authentication →
+   Sign In / Providers → **Google**, and enable it.
+
+### Apple
+
+Harder, and **it costs money**: Apple only issues the credentials to members
+of the Apple Developer Program, which is about 99 USD a year. You will need a
+Services ID, a Team ID, a Key ID and a `.p8` private key from
+developer.apple.com, pasted into Supabase → Authentication → Sign In /
+Providers → **Apple**.
+
+Apple also refuses plain `http://` redirects, so Apple sign-in cannot be
+tested on `http://localhost:5273` — it needs the deployed HTTPS site.
+
+If that is more than you want to take on, leave Apple switched off. The button
+stays dimmed and explains itself, and nothing else breaks.
+
+### Redirect URLs
+
+Supabase → Authentication → URL Configuration → **Redirect URLs** must list
+every address the browser may come back to, or the return trip lands on the
+Site URL instead:
+
+- `http://localhost:5273/**` while you are building
+- `https://whisk-diary.vercel.app/**` once it deploys
+
+### What an account from Google or Apple looks like
+
+Neither provider sends a username, so the sign-up trigger takes one from the
+email handle and adds a number if it is taken. For the nickname it uses
+whatever real name the provider gave (`full_name`, then `name`) instead of
+repeating the username back at her. She can change both from Edit profile.
+
+Apple only sends a name the **first** time someone authorises the app, so an
+Apple account may well arrive with the email handle as its nickname.
+
 ## One setting still to change in the dashboard
 
 **Leaked password protection** is off. Authentication → Policies turns on the

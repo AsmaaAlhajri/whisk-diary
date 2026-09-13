@@ -119,6 +119,73 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /* ============================================================
+     Google and Apple
+
+     signInWithOAuth sends the browser straight to Supabase, which
+     answers with a bare json error page if the provider is not
+     switched on - an ugly dead end. So we ask Supabase which ones
+     are enabled FIRST, and only redirect when one really is. The
+     buttons come alive on their own the moment a provider is turned
+     on in the dashboard; nothing here needs changing.
+     ============================================================ */
+  const providerButtons = [...document.querySelectorAll('[data-oauth]')];
+  const providerNote = document.getElementById('providerNote');
+  const NICE = { google: 'Google', apple: 'Apple' };
+
+  let providerCache = null;
+
+  async function enabledProviders() {
+    if (providerCache) return providerCache;
+    try {
+      const r = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
+        headers: { apikey: SUPABASE_KEY }
+      });
+      providerCache = (await r.json()).external || {};
+    } catch (e) {
+      providerCache = {};            /* offline: let the click find out */
+    }
+    return providerCache;
+  }
+
+  if (providerButtons.length) {
+    enabledProviders().then(ext => {
+      const off = providerButtons.filter(b => !ext[b.dataset.oauth]);
+      off.forEach(b => b.classList.add('is-off'));
+
+      if (off.length) {
+        const names = off.map(b => NICE[b.dataset.oauth]).join(' and ');
+        providerNote.textContent =
+          `${names} ${off.length === 1 ? 'is' : 'are'} not switched on yet — use an email below.`;
+        providerNote.hidden = false;
+      }
+    });
+
+    providerButtons.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const provider = btn.dataset.oauth;
+        const nice = NICE[provider] || provider;
+
+        btn.disabled = true;
+        const ext = await enabledProviders();
+
+        if (!ext[provider]) {
+          btn.disabled = false;
+          return say(`${nice} sign-in is not switched on for Whisk Diary yet.`);
+        }
+
+        /* come back to whichever page she was heading for */
+        const { error } = await sb.auth.signInWithOAuth({
+          provider,
+          options: { redirectTo: new URL(next, location.href).href }
+        });
+
+        btn.disabled = false;
+        if (error) say(error.message);
+      });
+    });
+  }
+
+  /* ============================================================
      Usernames
 
      Unique regardless of case - the database has a unique index on
