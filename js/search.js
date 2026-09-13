@@ -92,9 +92,28 @@ async function run() {
   profilesBlock.hidden = !wantsProfiles();
   cafesBlock.hidden = !wantsCafes();
 
-  summary.textContent = raw
-    ? `Searching for “${raw}”…`
-    : 'Everything in the diary, newest accounts and every matcha house.';
+  /* Headings only earn their place when both kinds are on screen and you
+     need telling which is which. Filter down to one and the results are
+     simply the results - no section to divide. */
+  const both = wantsProfiles() && wantsCafes();
+  profilesBlock.querySelector('.section-head').hidden = !both;
+  cafesBlock.querySelector('.section-head').hidden = !both;
+
+  /* with the headings gone, this line is the only thing naming what she is
+     looking at, so it says which kind rather than just "results" */
+  const noun = n => {
+    if (both) return n === 1 ? 'result' : 'results';
+    if (wantsProfiles()) return n === 1 ? 'profile' : 'profiles';
+    return n === 1 ? 'matcha house' : 'matcha houses';
+  };
+
+  const browsing = both
+    ? 'Everything in the diary, every account and every matcha house.'
+    : wantsProfiles()
+      ? 'Every account in the diary.'
+      : 'Every matcha house in the diary.';
+
+  summary.textContent = raw ? `Searching for “${raw}”…` : browsing;
 
   const jobs = [];
   if (wantsProfiles()) jobs.push(findProfiles(q));
@@ -106,7 +125,7 @@ async function run() {
   if (!raw) return;
 
   summary.textContent = found
-    ? `${found} ${found === 1 ? 'result' : 'results'} for “${raw}”.`
+    ? `${found} ${noun(found)} for “${raw}”.`
     : `Nothing matched “${raw}”. Try a shorter word, or the other filter.`;
 }
 
