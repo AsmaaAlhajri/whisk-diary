@@ -79,8 +79,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   email.value = user.email || '';
   avatar.value = me.avatar || FACES[0];
 
-  document.getElementById('viewPage').href =
-    `profile.html?u=${encodeURIComponent(me.username)}`;
   document.getElementById('oldHandle').textContent = `@${me.username}`;
 
   /* ---------- the faces ---------- */
@@ -373,6 +371,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         : 'edit-profile.html';
     }, 700);
   });
-
-  document.getElementById('signOut').addEventListener('click', () => Me.signOut());
 });

@@ -106,10 +106,11 @@ function drawGreeting() {
        <b>${me.followers_count}</b> ${me.followers_count === 1 ? 'girl reads' : 'girls read'} yours,
        and there ${me.reviews_count === 1 ? 'is' : 'are'} <b>${me.reviews_count}</b>
        ${me.reviews_count === 1 ? 'review' : 'reviews'} on your page.`;
+  /* Editing lives on her own profile page and nowhere else, so it is not
+     offered here. Sign out is, because this is the only page that offers it. */
   cta.innerHTML = `
     <a class="btn" href="explore.html">Explore today</a>
     <a class="btn btn--ghost" href="profile.html?u=${encodeURIComponent(me.username)}">My profile</a>
-    <a class="btn btn--ghost" href="edit-profile.html">Edit profile</a>
     <button class="btn btn--ghost" type="button" id="signOut">Sign out</button>`;
 
   document.getElementById('signOut').addEventListener('click', () => Me.signOut());

@@ -109,7 +109,7 @@ function mountChrome() {
     <div class="wrap foot__row">
       <span>Whisk Diary · a community diary for matcha lovers · Kuwait 2026</span>
       <nav aria-label="Footer">
-        ${me ? '<a href="edit-profile.html">Edit profile</a>' : '<a href="login.html">Sign in</a>'}
+        ${me ? '' : '<a href="login.html">Sign in</a>'}
       </nav>
     </div>`;
 
