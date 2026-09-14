@@ -236,25 +236,44 @@ img { max-width: 100%; display: block; }
 
 .topbar__spacer { flex: 1; }
 
-/* The search box that lives in the bar on every page: the field, then the
-   two chips that choose what to look for. The icon is positioned against
-   the field rather than the whole box, or it would sit beside the chips. */
+/* The search box that lives in the bar on every page: the field, and beside
+   it the two chips that choose what to look for. The chips stay out of the
+   way until she is actually searching - js/app.js adds .is-open while the
+   box has her attention. The icon is positioned against the field rather
+   than the whole box, or it would sit beside the chips. */
 .searchbox {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: .35rem;
   flex: 0 1 20rem;
 }
 
-.searchbox__field { position: relative; }
+.searchbox__field { position: relative; flex: 1 1 auto; min-width: 6rem; }
 
-.searchbox__filters { display: flex; gap: .3rem; }
+/* The chips need room, and taking it from the field would leave her typing
+   into a slot two words wide. So the whole box grows when it opens, and the
+   spacer beside it gives the width up. */
+.searchbox.is-open { flex: 1 1 30rem; }
+
+/* hidden until the box is in use, and never taking up room before then */
+.searchbox__filters { display: none; gap: .3rem; flex: none; }
+.searchbox.is-open .searchbox__filters { display: flex; }
 
 .chip--mini {
   padding: .18rem .6rem;
   font-size: .74rem;
   font-weight: 700;
   border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* "Matcha houses" is too wide to sit beside a usable search field on a
+   phone, so the same chip says "Houses" there */
+.chip__short { display: none; }
+
+@media (max-width: 560px) {
+  .chip__long { display: none; }
+  .chip__short { display: inline; }
 }
 
 .searchbox input {

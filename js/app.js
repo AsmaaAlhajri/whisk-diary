@@ -100,13 +100,18 @@ function mountChrome() {
           <input id="topSearchInput" type="search" name="q" placeholder="Search profiles or matcha houses…"
                  autocomplete="off">
         </div>
-        <div class="searchbox__filters">
+        <div class="searchbox__filters" id="topFilters">
           <span class="sr-only" id="topFilterLabel">Show</span>
           <button class="chip chip--mini chip--blush" type="button" id="topProfiles"
                   aria-pressed="true" aria-describedby="topFilterLabel">Profiles</button>
           <button class="chip chip--mini" type="button" id="topHouses"
-                  aria-pressed="true" aria-describedby="topFilterLabel">Matcha houses</button>
+                  aria-pressed="true" aria-describedby="topFilterLabel"><span
+                  class="chip__long">Matcha houses</span><span class="chip__short">Houses</span></button>
         </div>
+        <!-- A form with no submit control is not submitted by pressing Enter,
+             and the two chips are type=button so they do not count. This is
+             the control; it is off screen but reachable by keyboard. -->
+        <button class="sr-only" type="submit">Search</button>
       </form>
       ${account}
     </div>`;
@@ -193,8 +198,26 @@ function wireSearchBox() {
   if (!form) return;
 
   const input = form.querySelector('input');
+  const filters = document.getElementById('topFilters');
   const chipProfiles = document.getElementById('topProfiles');
   const chipHouses = document.getElementById('topHouses');
+
+  /* ---- show the chips only while she is searching ----
+     Pressing a chip must not steal focus from the field: if it did, the
+     field would blur, the chips would hide, and the press would land on
+     nothing. Refusing the default on pointerdown keeps focus where it is
+     and still lets the click through. */
+  filters.addEventListener('pointerdown', e => e.preventDefault());
+
+  input.addEventListener('focus', () => form.classList.add('is-open'));
+
+  form.addEventListener('focusout', e => {
+    if (!form.contains(e.relatedTarget)) form.classList.remove('is-open');
+  });
+
+  /* on the results page the chips are part of what she is reading, not a
+     thing to go looking for */
+  if (document.body.dataset.page === 'search') form.classList.add('is-open');
 
   const url = new URLSearchParams(location.search);
 
@@ -233,6 +256,16 @@ function wireSearchBox() {
         location.href = goSearch(input.value.trim());
       }
     });
+  });
+
+  /* Enter in the field should search. Browsers usually do that on their own
+     once a form has a submit control, but "usually" is not good enough for
+     the only way most people search, so it is asked for explicitly. */
+  input.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const q = input.value.trim();
+    if (q) location.href = goSearch(q);
   });
 
   form.addEventListener('submit', e => {
