@@ -19,30 +19,10 @@
   <h1>Who or where are you after?</h1>
   <p class="hand">names, nicknames, neighbourhoods &mdash; all of it works</p>
 
-  <!-- The search itself. The two chips below narrow it to one kind of
-       result; with both on, the page shows people and houses together. -->
-  <section class="search-hero" style="margin-top:1.4rem">
-    <form class="search-hero__row" id="searchForm" role="search">
-      <label class="sr-only" for="q">Search Whisk Diary</label>
-      <input id="q" name="q" type="search" autocomplete="off"
-             placeholder="maya, matcha osaka, cha yen, neighbors…">
-      <button class="btn" type="submit">Search</button>
-    </form>
+  <!-- The search box and its two chips live in the header now, on every
+       page, so this screen only shows what was found. -->
 
-    <div class="filters">
-      <span class="filters__label" id="filterLabel">Show</span>
-      <button class="chip chip--blush" type="button" id="chipProfiles"
-              aria-pressed="true" aria-describedby="filterLabel">
-        <span aria-hidden="true">&#128131;</span> Profiles
-      </button>
-      <button class="chip" type="button" id="chipCafes"
-              aria-pressed="true" aria-describedby="filterLabel">
-        <span aria-hidden="true">&#127861;</span> Matcha houses
-      </button>
-    </div>
-  </section>
-
-  <p class="small muted" id="summary" style="margin-top:1rem" aria-live="polite"></p>
+  <p class="small muted" id="summary" style="margin-top:1.4rem" aria-live="polite"></p>
 
   <section id="profilesBlock">
     <div class="section-head">

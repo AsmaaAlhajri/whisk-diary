@@ -1,89 +1,35 @@
 /* ============================================================
-   search.js - one box, two filters.
+   search.js - the results, and nothing else.
 
-   The state of the page is entirely in the url: ?q= what she
-   typed, &filter= profiles, cafes or all. That way a search can
-   be bookmarked, shared, and the back button behaves.
+   The box and its two chips live in the header, on every page, so
+   this screen no longer carries a second copy of them. That leaves
+   the url as the only place the state lives: ?q= what she typed,
+   &filter= profiles, cafes or all. A search can still be
+   bookmarked and shared, and the back button still behaves.
 
-   With no query at all the page lists everything, so the filters
+   With no query at all the page lists everything, so the chips
    double as a way to simply browse.
    ============================================================ */
 
-const form = document.getElementById('searchForm');
-const input = document.getElementById('q');
-const chipProfiles = document.getElementById('chipProfiles');
-const chipCafes = document.getElementById('chipCafes');
 const summary = document.getElementById('summary');
 
 document.addEventListener('DOMContentLoaded', async () => {
   await AppReady;
-
-  readUrl();
   run();
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    pushUrl();
-    run();
-  });
-
-  /* Clicking a chip narrows the search to that kind - click Profiles and you
-     get profiles, which is the only thing a filter button should ever mean.
-     Clicking the one that is already on its own lifts the filter and shows
-     both again, so there is a way back without hunting for a Clear button.
-     Both chips on is the resting state, not "no filter chosen". */
-  [chipProfiles, chipCafes].forEach(chip => {
-    chip.addEventListener('click', () => {
-      const other = chip === chipProfiles ? chipCafes : chipProfiles;
-      const isOnlyOneOn = chip.getAttribute('aria-pressed') === 'true'
-        && other.getAttribute('aria-pressed') === 'false';
-
-      if (isOnlyOneOn) {
-        chip.setAttribute('aria-pressed', 'true');
-        other.setAttribute('aria-pressed', 'true');
-      } else {
-        chip.setAttribute('aria-pressed', 'true');
-        other.setAttribute('aria-pressed', 'false');
-      }
-
-      pushUrl();
-      run();
-    });
-  });
-
   /* the back button should put the old search back on screen */
-  window.addEventListener('popstate', () => {
-    readUrl();
-    run();
-  });
+  window.addEventListener('popstate', run);
 });
 
-/* ---------- url in, url out ---------- */
-function wantsProfiles() { return chipProfiles.getAttribute('aria-pressed') === 'true'; }
-function wantsCafes() { return chipCafes.getAttribute('aria-pressed') === 'true'; }
+/* ---------- what the url is asking for ---------- */
+function asked() { return new URLSearchParams(location.search); }
 
-function filterName() {
-  if (wantsProfiles() && wantsCafes()) return 'all';
-  return wantsProfiles() ? 'profiles' : 'cafes';
-}
-
-function readUrl() {
-  const url = new URLSearchParams(location.search);
-  input.value = url.get('q') || '';
-
-  const f = url.get('filter') || 'all';
-  chipProfiles.setAttribute('aria-pressed', String(f !== 'cafes'));
-  chipCafes.setAttribute('aria-pressed', String(f !== 'profiles'));
-}
-
-function pushUrl() {
-  const url = `search.html?q=${encodeURIComponent(input.value.trim())}&filter=${filterName()}`;
-  history.pushState(null, '', url);
-}
+function wantsProfiles() { return (asked().get('filter') || 'all') !== 'cafes'; }
+function wantsCafes() { return (asked().get('filter') || 'all') !== 'profiles'; }
 
 /* ---------- the search ---------- */
 async function run() {
-  const raw = input.value.trim();
+  const raw = (asked().get('q') || '').trim();
   const q = cleanQuery(raw);
 
   const profilesBlock = document.getElementById('profilesBlock');
