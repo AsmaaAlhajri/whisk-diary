@@ -64,10 +64,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="profile-head__actions">
         ${mine
           ? `<a class="btn" href="edit-profile.html">&#9998; Edit profile</a>`
-          : `<a class="btn btn--blush" href="messages.html?to=${encodeURIComponent(person.username)}">
-               <span aria-hidden="true">&#128172;</span> Message
-             </a>
-             <p id="blockBox" style="margin:.6rem 0 0"></p>`}
+          : `<div class="profile-head__row">
+               <button class="btn" type="button" id="followBtn">Follow</button>
+               <a class="btn btn--blush" href="messages.html?to=${encodeURIComponent(person.username)}">
+                 <span aria-hidden="true">&#128172;</span> Message
+               </a>
+               <div class="dots" id="profileDots">
+                 <button class="dots__button" type="button" aria-haspopup="true" aria-expanded="false"
+                         aria-label="More about this page">&#8943;</button>
+                 <div class="dots__menu" hidden>
+                   <button type="button" data-act="share">Share profile</button>
+                   <button type="button" data-act="remove-follower" hidden>Remove follower</button>
+                   <button type="button" data-act="block" class="is-danger">Block</button>
+                 </div>
+               </div>
+             </div>`}
       </div>
     </header>
 
@@ -88,50 +99,137 @@ document.addEventListener('DOMContentLoaded', async () => {
     <div id="reviews"><div class="skeleton"></div></div>`;
 
   loadEntries(person, mine);
-  if (!mine && me) drawBlock(person, me);
+  if (!mine) drawRelationship(person, me);
 });
 
 /* ============================================================
-   Blocking
+   Follow, block, share, remove follower
 
-   The button only shows what the database already decides. A
-   blocked account is refused by the rule on messages, so removing
-   this button would not let anyone through, and neither would
-   calling the database straight from the console.
+   Every one of these only shows what the database already allows.
+   Following is refused unless the row is in her own name, and a
+   blocked pair cannot follow each other at all, so none of these
+   buttons is what does the stopping.
    ============================================================ */
-async function drawBlock(person, me) {
-  const box = document.getElementById('blockBox');
-  if (!box) return;
+async function drawRelationship(person, me) {
+  const followBtn = document.getElementById('followBtn');
+  const dots = document.getElementById('profileDots');
+  if (!followBtn || !dots) return;
 
-  const { data: existing } = await sb
-    .from('blocks')
-    .select('blocked_id')
-    .eq('blocker_id', me.id)
-    .eq('blocked_id', person.id)
-    .maybeSingle();
+  /* signed out: the button is a way in, not a dead end */
+  if (!me) {
+    followBtn.addEventListener('click', () => {
+      location.href = 'login.html?next=index.html';
+    });
+    dots.querySelector('[data-act="remove-follower"]').hidden = true;
+    wireMenu(person, me, false);
+    return;
+  }
 
-  const blocked = !!existing;
-  const name = esc(person.nickname || person.username);
+  const [iFollow, theyFollow, blocked] = await Promise.all([
+    sb.from('follows').select('following_id')
+      .eq('follower_id', me.id).eq('following_id', person.id).maybeSingle(),
+    sb.from('follows').select('follower_id')
+      .eq('follower_id', person.id).eq('following_id', me.id).maybeSingle(),
+    sb.from('blocks').select('blocked_id')
+      .eq('blocker_id', me.id).eq('blocked_id', person.id).maybeSingle()
+  ]);
 
-  box.innerHTML = blocked
-    ? `<span class="small muted" style="display:block;margin-bottom:.4rem">
-         ${name} cannot message you.
-       </span>
-       <button class="btn btn--ghost btn--small" type="button" id="blockBtn">Unblock</button>`
-    : `<button class="btn btn--ghost btn--small" type="button" id="blockBtn">Block</button>`;
+  const following = !!iFollow.data;
+  const followsMe = !!theyFollow.data;
+  const isBlocked = !!blocked.data;
 
-  document.getElementById('blockBtn').addEventListener('click', async () => {
-    if (!blocked && !confirm(`Block ${person.nickname || person.username}? They will not be able to message you.`)) return;
+  followBtn.textContent = following ? 'Unfollow' : 'Follow';
+  followBtn.classList.toggle('btn--ghost', following);
+  followBtn.disabled = isBlocked;
 
-    const { error } = blocked
-      ? await sb.from('blocks').delete().eq('blocker_id', me.id).eq('blocked_id', person.id)
-      : await sb.from('blocks').insert({ blocker_id: me.id, blocked_id: person.id });
+  /* moots - each following the other - is what decides whether a message
+     lands in her inbox or in her requests */
+  if (following && followsMe) {
+    followBtn.title = 'You follow each other, so your messages go straight to her.';
+  }
 
-    if (error) return toast('That would not save.');
+  followBtn.onclick = async () => {
+    followBtn.disabled = true;
 
-    toast(blocked ? 'Unblocked.' : 'Blocked.');
-    drawBlock(person, me);
+    const { error } = following
+      ? await sb.from('follows').delete()
+          .eq('follower_id', me.id).eq('following_id', person.id)
+      : await sb.from('follows').insert({ follower_id: me.id, following_id: person.id });
+
+    followBtn.disabled = false;
+    if (error) return toast(/too_fast/.test(error.message)
+      ? 'That is a lot of following in one hour. Try again shortly.'
+      : 'That would not save.');
+
+    toast(following ? 'Unfollowed.' : 'Followed.');
+    location.reload();
+  };
+
+  const removeItem = dots.querySelector('[data-act="remove-follower"]');
+  removeItem.hidden = !followsMe;
+
+  const blockItem = dots.querySelector('[data-act="block"]');
+  blockItem.textContent = isBlocked ? 'Unblock' : 'Block';
+  blockItem.dataset.act = isBlocked ? 'unblock' : 'block';
+
+  wireMenu(person, me, isBlocked);
+}
+
+function wireMenu(person, me, isBlocked) {
+  const dots = document.getElementById('profileDots');
+
+  dots.addEventListener('click', async e => {
+    const button = e.target.closest('[data-act]');
+    if (!button) return;
+
+    const act = button.dataset.act;
+
+    if (act === 'share') return shareProfile(person);
+
+    if (!me) return (location.href = 'login.html?next=index.html');
+
+    if (act === 'remove-follower') {
+      if (!confirm(`Remove ${person.nickname || person.username} from your followers?`)) return;
+      const { error } = await sb.from('follows').delete()
+        .eq('follower_id', person.id).eq('following_id', me.id);
+      if (error) return toast('That would not save.');
+      toast('Removed.');
+      return location.reload();
+    }
+
+    if (act === 'block' || act === 'unblock') {
+      if (act === 'block' && !confirm(
+        `Block ${person.nickname || person.username}? They will not be able to message you.`)) return;
+
+      const { error } = act === 'block'
+        ? await sb.from('blocks').insert({ blocker_id: me.id, blocked_id: person.id })
+        : await sb.from('blocks').delete()
+            .eq('blocker_id', me.id).eq('blocked_id', person.id);
+
+      if (error) return toast('That would not save.');
+      toast(act === 'block' ? 'Blocked.' : 'Unblocked.');
+      return location.reload();
+    }
   });
+}
+
+/* the phone share sheet where there is one, the clipboard otherwise, and
+   the plain address if the browser refuses both */
+async function shareProfile(person) {
+  const url = new URL(`profile.html?u=${encodeURIComponent(person.username)}`, location.href).href;
+  const title = `${person.nickname || person.username} on Whisk Diary`;
+
+  if (navigator.share) {
+    try { await navigator.share({ title, url }); return; }
+    catch (err) { if (err.name === 'AbortError') return; }
+  }
+
+  try {
+    await navigator.clipboard.writeText(url);
+    toast('Link copied.');
+  } catch (err) {
+    prompt('Copy this link', url);
+  }
 }
 
 /* Everything she has written - posts and reviews together, newest first.

@@ -1215,6 +1215,39 @@ body { padding-bottom: 5.25rem; }
   overflow: hidden;
 }
 
+/* "Messages" and "Message requests" inside the list */
+.dm__heading {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0;
+  padding: .7rem 1rem .35rem;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--matcha-deep);
+  background: var(--cream);
+  border-bottom: var(--edge);
+}
+
+.dm__note {
+  margin: 0;
+  padding: .5rem 1rem;
+  font-size: .78rem;
+  color: var(--ink-soft);
+  background: var(--cream);
+  border-bottom: var(--edge);
+}
+
+/* the follow button sits beside Message and the three dots */
+.profile-head__row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
 .dm__person {
   display: flex;
   align-items: center;

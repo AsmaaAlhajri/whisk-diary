@@ -87,6 +87,23 @@ async function conversations() {
     (people || []).forEach(p => everyone.set(p.id, p));
   }
 
+  /* Moots - the two of you following each other - decides where a
+     conversation sits. Asked as two questions over the whole list rather
+     than two per person. */
+  const everyoneHere = rows.map(r => r.otherId);
+
+  const [iFollow, theyFollow] = await Promise.all([
+    sb.from('follows').select('following_id')
+      .eq('follower_id', me.id).in('following_id', everyoneHere),
+    sb.from('follows').select('follower_id')
+      .eq('following_id', me.id).in('follower_id', everyoneHere)
+  ]);
+
+  const mine = new Set((iFollow.data || []).map(f => f.following_id));
+  const theirs = new Set((theyFollow.data || []).map(f => f.follower_id));
+
+  rows.forEach(r => { r.moots = mine.has(r.otherId) && theirs.has(r.otherId); });
+
   return rows;
 }
 
@@ -103,9 +120,9 @@ async function drawList() {
     return;
   }
 
-  box.innerHTML = rows.map(r => {
+  const person = r => {
     const who = everyone.get(r.otherId) || { username: '', nickname: 'Someone' };
-    const mine = r.last.sender_id === me.id;
+    const fromMe = r.last.sender_id === me.id;
 
     return `
       <button class="dm__person" type="button" data-person="${esc(r.otherId)}"
@@ -113,11 +130,26 @@ async function drawList() {
         ${faceHtml(who, 'face face--sm')}
         <span style="min-width:0">
           <span class="dm__who">${esc(who.nickname || who.username)}</span>
-          <span class="dm__peek">${mine ? 'You: ' : ''}${esc(r.last.body)}</span>
+          <span class="dm__peek">${fromMe ? 'You: ' : ''}${esc(r.last.body)}</span>
         </span>
         ${r.unread ? `<span class="dm__unread">${r.unread}</span>` : ''}
       </button>`;
-  }).join('');
+  };
+
+  /* Someone you both follow reaches you directly. Anyone else waits in
+     requests until you follow them back. */
+  const moots = rows.filter(r => r.moots);
+  const requests = rows.filter(r => !r.moots);
+  const waiting = requests.reduce((n, r) => n + r.unread, 0);
+
+  box.innerHTML = `
+    ${moots.length ? `<p class="dm__heading">Messages</p>${moots.map(person).join('')}` : ''}
+    ${requests.length ? `
+      <p class="dm__heading">
+        Message requests${waiting ? ` <span class="dm__unread">${waiting}</span>` : ''}
+      </p>
+      <p class="dm__note">From girls you do not follow back yet.</p>
+      ${requests.map(person).join('')}` : ''}`;
 
   box.querySelectorAll('[data-person]').forEach(btn => {
     btn.addEventListener('click', () => openThread(btn.dataset.person));
