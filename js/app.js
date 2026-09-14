@@ -209,15 +209,19 @@ function wireSearchBox() {
      and still lets the click through. */
   filters.addEventListener('pointerdown', e => e.preventDefault());
 
+  /* On the results page the chips are part of what she is reading, so they
+     stay out the whole time - on arrival and after she has tapped the box
+     and tapped away again. Everywhere else they come and go with the box. */
+  const alwaysOpen = document.body.dataset.page === 'search';
+
+  if (alwaysOpen) form.classList.add('is-open');
+
   input.addEventListener('focus', () => form.classList.add('is-open'));
 
   form.addEventListener('focusout', e => {
+    if (alwaysOpen) return;
     if (!form.contains(e.relatedTarget)) form.classList.remove('is-open');
   });
-
-  /* on the results page the chips are part of what she is reading, not a
-     thing to go looking for */
-  if (document.body.dataset.page === 'search') form.classList.add('is-open');
 
   const url = new URLSearchParams(location.search);
 
