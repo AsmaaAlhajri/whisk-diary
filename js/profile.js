@@ -66,7 +66,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           ? `<a class="btn" href="edit-profile.html">&#9998; Edit profile</a>`
           : `<a class="btn btn--blush" href="messages.html?to=${encodeURIComponent(person.username)}">
                <span aria-hidden="true">&#128172;</span> Message
-             </a>`}
+             </a>
+             <p id="blockBox" style="margin:.6rem 0 0"></p>`}
       </div>
     </header>
 
@@ -79,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     <div class="section-head">
       <div>
         <p class="eyebrow">${mine ? 'Your entries' : 'Her entries'}</p>
-        <h2>${mine ? 'Pinned to your page' : `Pinned by ${esc(person.nickname || person.username)}`}</h2>
+        <h2>${mine ? 'Everything you have written' : `Everything ${esc(person.nickname || person.username)} has written`}</h2>
       </div>
       ${mine ? `<a class="btn btn--small" href="create.html">&#128395;&#65039; Write something</a>` : ''}
     </div>
@@ -87,9 +88,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     <div id="reviews"><div class="skeleton"></div></div>`;
 
   loadEntries(person, mine);
+  if (!mine && me) drawBlock(person, me);
 });
 
-/* Everything she has pinned - posts and reviews together, newest first.
+/* ============================================================
+   Blocking
+
+   The button only shows what the database already decides. A
+   blocked account is refused by the rule on messages, so removing
+   this button would not let anyone through, and neither would
+   calling the database straight from the console.
+   ============================================================ */
+async function drawBlock(person, me) {
+  const box = document.getElementById('blockBox');
+  if (!box) return;
+
+  const { data: existing } = await sb
+    .from('blocks')
+    .select('blocked_id')
+    .eq('blocker_id', me.id)
+    .eq('blocked_id', person.id)
+    .maybeSingle();
+
+  const blocked = !!existing;
+  const name = esc(person.nickname || person.username);
+
+  box.innerHTML = blocked
+    ? `<span class="small muted" style="display:block;margin-bottom:.4rem">
+         ${name} cannot message you.
+       </span>
+       <button class="btn btn--ghost btn--small" type="button" id="blockBtn">Unblock</button>`
+    : `<button class="btn btn--ghost btn--small" type="button" id="blockBtn">Block</button>`;
+
+  document.getElementById('blockBtn').addEventListener('click', async () => {
+    if (!blocked && !confirm(`Block ${person.nickname || person.username}? They will not be able to message you.`)) return;
+
+    const { error } = blocked
+      ? await sb.from('blocks').delete().eq('blocker_id', me.id).eq('blocked_id', person.id)
+      : await sb.from('blocks').insert({ blocker_id: me.id, blocked_id: person.id });
+
+    if (error) return toast('That would not save.');
+
+    toast(blocked ? 'Unblocked.' : 'Blocked.');
+    drawBlock(person, me);
+  });
+}
+
+/* Everything she has written - posts and reviews together, newest first.
    They live in two tables, so they are merged here rather than in sql. */
 async function loadEntries(person, mine) {
   const box = document.getElementById('reviews');
@@ -123,7 +168,7 @@ async function loadEntries(person, mine) {
       mine ? 'Your page is still blank' : 'Nothing written yet',
       mine
         ? 'Press the pen at the bottom of the screen to write your first entry.'
-        : 'This girl has not pinned anything yet.'
+        : 'This girl has not written anything yet.'
     );
     return;
   }

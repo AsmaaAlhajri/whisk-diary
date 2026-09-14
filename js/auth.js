@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!USERNAME_SHAPE.test(username)) return say('Pick a username: 3 to 20 letters, numbers, dots or underscores.');
     if (usernameState === 'taken') return say(`@${username} is taken. Try another.`);
     if (!/^\S+@\S+\.\S+$/.test(email)) return say('That email does not look right.');
-    if (password.length < 6) return say('Password needs at least six characters.');
+    if (password.length < 10) return say('Password needs at least ten characters.');
 
     busy(signupForm, true, 'Making your page…');
 
@@ -318,16 +318,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     busy(signupForm, false);
 
+    const CHECK_YOUR_EMAIL =
+      'Nearly done - check your email to finish, then log in.';
+
     if (error) {
+      /* An address that already has an account gets the SAME answer as a new
+         one. Saying "that email is taken" would let anyone test a list of
+         addresses and learn who has an account here, which for a small
+         community is itself the harm. The real owner is told what happened
+         by the email Supabase sends her. */
       if (/already registered|already exists/i.test(error.message)) {
-        return say('That email already has an account. Log in instead.');
+        return say(CHECK_YOUR_EMAIL, true);
       }
       return say(error.message);
     }
 
     /* no session means the project still asks for email confirmation */
     if (!data.session) {
-      return say('Nearly done - check your email to confirm the account, then log in.', true);
+      return say(CHECK_YOUR_EMAIL, true);
     }
 
     say('Your page is ready. Taking you in…', true);

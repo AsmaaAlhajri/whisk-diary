@@ -207,6 +207,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const postSubmit = document.getElementById('postSubmit');
   const postPlace = document.getElementById('postPlace');
 
+  /* the file this post had when the form opened, so a replaced or removed
+     picture can be taken out of the bucket rather than left behind */
+  let mediaWhenOpened = null;
+
   if (editingId) {
     const { data: existing } = await sb
       .from('posts')
@@ -227,6 +231,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelector('h1').textContent = 'Change your post';
     document.querySelector('.hand').textContent = 'the diary will note that you edited it';
     postSubmit.textContent = 'Save changes';
+
+    mediaWhenOpened = existing.media_path || null;
 
     postBody.value = existing.body || '';
     postCount.textContent = postBody.value.length;
@@ -262,9 +268,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     let error;
+    let row = null;
 
     if (editingId) {
-      const row = { body, place };
+      row = { body, place };
 
       /* a new file replaces the old one; removing it clears both columns;
          leaving it alone touches neither */
@@ -289,7 +296,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     busy(postForm, false);
 
-    if (error) return (postMsg.textContent = error.message);
+    if (error) {
+      return (postMsg.textContent = /too_fast/.test(error.message)
+        ? 'That is a lot of writing in one hour. Try again shortly.'
+        : error.message);
+    }
+
+    /* the row is saved, so the picture it no longer points at can go. Done
+       after the save, so a failure here costs a stray file and nothing more. */
+    if (editingId && mediaWhenOpened && row && 'media_path' in row
+        && row.media_path !== mediaWhenOpened) {
+      await sb.storage.from('media').remove([mediaWhenOpened]);
+    }
 
     postMsg.classList.add('ok');
     postMsg.textContent = editingId ? 'Saved. Taking you to your page…' : 'Posted. Taking you to your page…';
@@ -410,7 +428,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     busy(reviewForm, false);
 
-    if (error) return (reviewMsg.textContent = error.message);
+    if (error) {
+      return (reviewMsg.textContent = /too_fast/.test(error.message)
+        ? 'That is a lot of writing in one hour. Try again shortly.'
+        : error.message);
+    }
 
     const slug = cafeSelect.selectedOptions[0].dataset.slug;
 

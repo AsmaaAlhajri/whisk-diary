@@ -39,20 +39,19 @@ const Me = {
     if (!user) return null;
 
     /* profiles.id is deliberately not the auth id - seeded profiles have no
-       account behind them - so the row is found by user_id first. */
-    const { data: own } = await sb
-      .from('profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle();
+       account behind them - so the profile row has to be looked up. We ask
+       the database "which profile am I?" rather than reading the column that
+       links the two, because that column is no longer published to anyone:
+       it is also the folder name where a girl's pictures are kept. */
+    const { data: ownId } = await sb.rpc('my_profile_id');
 
-    if (!own) return null;
+    if (!ownId) return null;
 
     /* profile_cards is the same row plus the three public counts */
     const { data } = await sb
       .from('profile_cards')
       .select('*')
-      .eq('id', own.id)
+      .eq('id', ownId)
       .maybeSingle();
 
     this._profile = data || null;
@@ -95,10 +94,19 @@ function mountChrome() {
       <a class="logo" href="index.html">Whisk Diary <span>\u{1F375}</span></a>
       <span class="topbar__spacer"></span>
       <form class="searchbox" role="search" id="topSearch">
-        <span class="searchbox__icon" aria-hidden="true">\u{1F50E}</span>
-        <label class="sr-only" for="topSearchInput">Search profiles and matcha houses</label>
-        <input id="topSearchInput" type="search" name="q" placeholder="Search profiles or matcha houses…"
-               autocomplete="off">
+        <div class="searchbox__field">
+          <span class="searchbox__icon" aria-hidden="true">\u{1F50E}</span>
+          <label class="sr-only" for="topSearchInput">Search profiles and matcha houses</label>
+          <input id="topSearchInput" type="search" name="q" placeholder="Search profiles or matcha houses…"
+                 autocomplete="off">
+        </div>
+        <div class="searchbox__filters">
+          <span class="sr-only" id="topFilterLabel">Show</span>
+          <button class="chip chip--mini chip--blush" type="button" id="topProfiles"
+                  aria-pressed="true" aria-describedby="topFilterLabel">Profiles</button>
+          <button class="chip chip--mini" type="button" id="topHouses"
+                  aria-pressed="true" aria-describedby="topFilterLabel">Matcha houses</button>
+        </div>
       </form>
       ${account}
     </div>`;
@@ -171,24 +179,67 @@ function searchUrl(q, filters) {
   return `search.html?q=${encodeURIComponent(q)}&filter=${f}`;
 }
 
+/* ============================================================
+   The search box in the header
+
+   The two chips under it choose what to look for, from any page,
+   so she does not have to land on the results page first and then
+   narrow it. They behave exactly like the pair on the search page:
+   clicking one selects that kind, clicking the one already on its
+   own lifts the filter and shows both again.
+   ============================================================ */
 function wireSearchBox() {
   const form = document.getElementById('topSearch');
   if (!form) return;
 
   const input = form.querySelector('input');
+  const chipProfiles = document.getElementById('topProfiles');
+  const chipHouses = document.getElementById('topHouses');
 
-  /* if we are already on the results page, show what was searched */
-  const asked = new URLSearchParams(location.search).get('q');
+  const url = new URLSearchParams(location.search);
+
+  /* if we are already on the results page, show what was searched and
+     which way it was narrowed */
+  const asked = url.get('q');
   if (asked) input.value = asked;
+
+  const startingFilter = url.get('filter') || 'all';
+  chipProfiles.setAttribute('aria-pressed', String(startingFilter !== 'cafes'));
+  chipHouses.setAttribute('aria-pressed', String(startingFilter !== 'profiles'));
+
+  const chosen = () => {
+    const p = chipProfiles.getAttribute('aria-pressed') === 'true';
+    const h = chipHouses.getAttribute('aria-pressed') === 'true';
+    if (p && h) return 'all';
+    return p ? 'profiles' : 'cafes';
+  };
+
+  const goSearch = q =>
+    `search.html?q=${encodeURIComponent(q)}&filter=${chosen()}`;
+
+  [chipProfiles, chipHouses].forEach(chip => {
+    chip.addEventListener('click', () => {
+      const other = chip === chipProfiles ? chipHouses : chipProfiles;
+      const onlyThisOne = chip.getAttribute('aria-pressed') === 'true'
+        && other.getAttribute('aria-pressed') === 'false';
+
+      chip.setAttribute('aria-pressed', 'true');
+      other.setAttribute('aria-pressed', String(onlyThisOne));
+
+      /* On the results page a change should show immediately, otherwise
+         she would be staring at results that no longer match the chips.
+         Anywhere else it just waits for her to search. */
+      if (document.body.dataset.page === 'search') {
+        location.href = goSearch(input.value.trim());
+      }
+    });
+  });
 
   form.addEventListener('submit', e => {
     e.preventDefault();
     const q = input.value.trim();
     if (!q) return;
-
-    /* keep whichever filter is already showing */
-    const current = new URLSearchParams(location.search).get('filter');
-    location.href = `search.html?q=${encodeURIComponent(q)}&filter=${current || 'all'}`;
+    location.href = goSearch(q);
   });
 }
 
@@ -466,8 +517,22 @@ document.addEventListener('click', async e => {
     const what = kind === 'post' ? 'post' : 'review';
     if (!confirm(`Delete this ${what}? It cannot be brought back.`)) return;
 
+    /* Ask for the file name before the row goes, or it is lost with the row
+       and the picture stays in the bucket for ever, readable by anyone who
+       kept the link. Deleting a row is not deleting a photograph. */
+    const { data: had } = await sb
+      .from(table)
+      .select('media_path')
+      .eq('id', id)
+      .maybeSingle();
+
     const { error } = await sb.from(table).delete().eq('id', id);
     if (error) return toast('That would not delete.');
+
+    if (had && had.media_path) {
+      const gone = await sb.storage.from('media').remove([had.media_path]);
+      if (gone.error) toast('Entry deleted, but the picture would not go. Try again.');
+    }
 
     const card = document.querySelector(`[data-entry="${CSS.escape(id)}"]`);
     if (card) card.remove();

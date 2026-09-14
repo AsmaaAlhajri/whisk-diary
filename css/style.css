@@ -236,8 +236,26 @@ img { max-width: 100%; display: block; }
 
 .topbar__spacer { flex: 1; }
 
-/* the search box that lives in the bar on every page */
-.searchbox { position: relative; flex: 0 1 20rem; }
+/* The search box that lives in the bar on every page: the field, then the
+   two chips that choose what to look for. The icon is positioned against
+   the field rather than the whole box, or it would sit beside the chips. */
+.searchbox {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  flex: 0 1 20rem;
+}
+
+.searchbox__field { position: relative; }
+
+.searchbox__filters { display: flex; gap: .3rem; }
+
+.chip--mini {
+  padding: .18rem .6rem;
+  font-size: .74rem;
+  font-weight: 700;
+  border-radius: 999px;
+}
 
 .searchbox input {
   width: 100%;

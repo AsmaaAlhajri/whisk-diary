@@ -221,6 +221,15 @@ async function send(e) {
 
   if (error) {
     input.value = body;          /* give it back rather than losing it */
+
+    /* the database refuses a message between two people where either has
+       blocked the other; it does not say which way round, and neither do we */
+    if (/too_fast/.test(error.message)) {
+      return toast('Too many messages this hour. Try again shortly.');
+    }
+    if (/row-level security|violates/i.test(error.message)) {
+      return toast('This message cannot be sent.');
+    }
     return toast('That would not send.');
   }
 
