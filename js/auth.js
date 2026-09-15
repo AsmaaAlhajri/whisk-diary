@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     title.textContent = signup ? 'Start your page' : 'Welcome back';
     sub.textContent = signup
-      ? 'A nickname, a username, and somewhere to send the confirmation.'
+      ? 'A nickname, a username, an email and a password. That is all.'
       : 'Your page is exactly where you left it.';
 
     say('');
@@ -132,20 +132,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   const providerNote = document.getElementById('providerNote');
   const NICE = { google: 'Google', apple: 'Apple' };
 
-  let providerCache = null;
+  /* One trip for the whole of Supabase's public auth configuration: which
+     providers are on, and whether a new account still has to confirm its
+     email. Both are read from it, so it is fetched once and kept. */
+  let settingsCache = null;
 
-  async function enabledProviders() {
-    if (providerCache) return providerCache;
+  async function authSettings() {
+    if (settingsCache) return settingsCache;
     try {
       const r = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
         headers: { apikey: SUPABASE_KEY }
       });
-      providerCache = (await r.json()).external || {};
+      settingsCache = await r.json();
     } catch (e) {
-      providerCache = {};            /* offline: let the click find out */
+      settingsCache = {};            /* offline: let the click find out */
     }
-    return providerCache;
+    return settingsCache;
   }
+
+  async function enabledProviders() {
+    return (await authSettings()).external || {};
+  }
+
+  enabledProviders.settings = authSettings;
 
   if (providerButtons.length) {
     enabledProviders().then(ext => {
@@ -318,17 +327,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     busy(signupForm, false);
 
-    const CHECK_YOUR_EMAIL =
-      'Nearly done - check your email to finish, then log in.';
+    /* ------------------------------------------------------------
+       What to say when the address is already taken depends on a
+       setting only the dashboard can change.
+
+       With confirmation ON, a new sign up and a repeat one look the
+       same from here, so both are told to check their email and
+       nobody can use the form to find out who has an account.
+
+       With confirmation OFF there is no email to hide behind: the
+       account is either made or it is not, and she has to be told
+       which. That is the trade. The wording stays as soft as it can
+       be while still being true.
+       ------------------------------------------------------------ */
+    const settings = await enabledProviders.settings();
+    const confirmationOn = settings && settings.mailer_autoconfirm === false;
+
+    const CHECK_YOUR_EMAIL = 'Nearly done - check your email to finish, then log in.';
 
     if (error) {
-      /* An address that already has an account gets the SAME answer as a new
-         one. Saying "that email is taken" would let anyone test a list of
-         addresses and learn who has an account here, which for a small
-         community is itself the harm. The real owner is told what happened
-         by the email Supabase sends her. */
       if (/already registered|already exists/i.test(error.message)) {
-        return say(CHECK_YOUR_EMAIL, true);
+        return say(confirmationOn
+          ? CHECK_YOUR_EMAIL
+          : 'That email cannot be used for a new account. Log in instead.',
+          confirmationOn);
       }
       return say(error.message);
     }
